@@ -1,2 +1,2 @@
-# chrome-extension
-Filewall.io Chrome extension
+# filewall.io-chrome-extension
+filewall.io chrome extension
