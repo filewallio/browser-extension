@@ -14,11 +14,11 @@ chrome.runtime.onInstalled.addListener(function () {
         if(data.baseurl  === undefined){ data.baseurl  = window.baseurl; }
         if(data.username === undefined){ data.username = ""; }
         if(data.apikey   === undefined){ data.apikey   = ""; }
-        if(data.enable_context_menu      === undefined){ data.enable_context_menu      = true; }
-        if(data.auto_secure_downloads    === undefined){ data.auto_secure_downloads    = false; }
-        if(data.auto_cancel_insecure     === undefined){ data.auto_cancel_insecure     = false; }
-        if(data.auto_secure_urls         === undefined){ data.auto_secure_urls         = auto_secure_urls; }
-        if(data.auto_secure_exclude_urls === undefined){ data.auto_secure_exclude_urls = auto_secure_exclude_urls; }
+        if(data.enable_context_menu      === undefined){ data.enable_context_menu      = true; } // not userselectable at the moment
+        if(data.auto_secure_downloads    === undefined){ data.auto_secure_downloads    = false; }// not userselectable at the moment
+        if(data.auto_cancel_insecure     === undefined){ data.auto_cancel_insecure     = false; }// not userselectable at the moment
+        if(data.auto_secure_urls         === undefined){ data.auto_secure_urls         = auto_secure_urls; }// not userselectable at the moment
+        if(data.auto_secure_exclude_urls === undefined){ data.auto_secure_exclude_urls = auto_secure_exclude_urls; }// not userselectable at the moment
 
         window.apikey  = data.apikey;
         window.baseurl = data.baseurl;

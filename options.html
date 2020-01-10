@@ -34,12 +34,6 @@
         <div id="helpMenu" class="row-fluid menuItem" data-tab="helpTab">
           <p>Help</p>
         </div>
-        <!-- <div class="row-fluid menuItem" data-tab="historyTab">
-                  <p>History</p>
-                </div> -->
-        <div id="trMenu" class="row-fluid menuItem" data-tab="trTab">
-          <p>Translate</p>
-        </div>
       </div>
     </div>
 
@@ -87,48 +81,50 @@
 
           <br><br><br>
 
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span6">
-                <p style="font-size:18px;">Enable Right click menu</p>
-              </div>
-              <div class="span6 right">
-                <div id="enable_context_menu"></div>
+          <div class="hide"> <!-- hidden for now-->
+            <div class="row-fluid setting">
+              <div class="row-fluid">
+                <div class="span6">
+                  <p style="font-size:18px;">Enable Right click menu</p>
+                </div>
+                <div class="span6 right">
+                  <div id="enable_context_menu"></div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span6">
-                <p style="font-size:18px;">Automatically secure all downloads</p>
-              </div>
-              <div class="span6 right">
-                <div id="auto_secure_downloads"></div>
+            <div class="row-fluid setting">
+              <div class="row-fluid">
+                <div class="span6">
+                  <p style="font-size:18px;">Automatically secure all downloads</p>
+                </div>
+                <div class="span6 right">
+                  <div id="auto_secure_downloads"></div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">auto_secure_urls</p>
+            <div class="row-fluid setting">
+              <div class="row-fluid">
+                <div class="span12">
+                  <p style="font-size:18px;">auto_secure_urls</p>
+                </div>
+              </div>
+              <div class="row-fluid">
+                <div class="span11 offset1" id="auto_secure_urls_container">dl1
+                </div>
               </div>
             </div>
-            <div class="row-fluid">
-              <div class="span11 offset1" id="auto_secure_urls_container">dl1
-              </div>
-            </div>
-          </div>
 
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">auto_secure_exclude_urls</p>
+            <div class="row-fluid setting">
+              <div class="row-fluid">
+                <div class="span12">
+                  <p style="font-size:18px;">auto_secure_exclude_urls</p>
+                </div>
               </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1" id="auto_secure_exclude_urls_container">dl2
+              <div class="row-fluid">
+                <div class="span11 offset1" id="auto_secure_exclude_urls_container">dl2
+                </div>
               </div>
             </div>
           </div>
@@ -188,513 +184,12 @@
           </div>
         </div>
         <div class="row-fluid" id="help">
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Keyboard Shortcuts</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p><a id="mShort">Set this Shortcut</a></p>
-              </div>
-              <div class="span8 ">
-                <p>Open PopUp</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Esc</p>
-              </div>
-              <div class="span8 ">
-                <p>Close PopUp</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Up/Down</p>
-              </div>
-              <div class="span8 ">
-                <p>Select Items in the download List/Select Options in the Right Click Menu</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Enter</p>
-              </div>
-              <div class="span8 ">
-                <p>Open Selected Item/perform operation on selected right click menu option</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Ctrl+Enter</p>
-              </div>
-              <div class="span8 ">
-                <p>Opens Right click menu for selected item</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Tab</p>
-              </div>
-              <div class="span8 ">
-                <p>To navigate options at the top (clear all, open download folder, settings)</p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Settings</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Chrome Downloads Bar</p>
-              </div>
-              <div class="span8 ">
-                <p>Off means download bar is disabled.</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Download Completion Notification</p>
-              </div>
-              <div class="span8 ">
-                <p>On means notifications are enabled when download completes</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>On Notification Click, Do</p>
-              </div>
-              <div class="span8 ">
-                <p>select what u want to do when u click on notification</p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Options</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Clear Failed</p>
-              </div>
-              <div class="span8 ">
-                <p>This Option will clear all downloads that eighter failed due to network error or cancelled by the
-                  user</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Clear Deleted</p>
-              </div>
-              <div class="span8 ">
-                <p>This Option will clear all downloads whom files have been deleted form disk</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Clear Completed</p>
-              </div>
-              <div class="span8 ">
-                <p>This Option will clear all downloads which are successfully completed (be it on the disk or not).
-                  This doesn't clear cancelled downloads</p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">What More?</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Right click on an item to access options.</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Download Items are dragable. You drag and drop the item to apropriate Application to open it.</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>when you search and then click <u>Erase all visible downloads</u> it removes only items in the search
-                  results. That means you can filter items to clear. :-) </p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">What Next?</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Advance Searching capability (search based on size, date, item's state, etc.).</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Batch operations on downloads</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Filters on downloads</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Download statistics</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p>Many more other features. Just hold on to it.</p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Have a Bug to Report or want to see some feature added?</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p><a target="_blank"
-                    href="https://chrome.google.com/webstore/support/daoidaoebhfcgccdpgjjcbdginkofmfe?hl=en&gl=IN#bug">Go
-                    for It</a></p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Do Not Forget</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p><a target="_blank"
-                    href="https://chrome.google.com/webstore/detail/downloads-manager-beta/daoidaoebhfcgccdpgjjcbdginkofmfe?	utm_source=chrome-ntp-icon">Rate
-                    and Share</a></p>
-              </div>
-            </div>
-          </div>
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span11 offset1">
-                <p></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;"></p>
-              </div>
-            </div>
-          </div>
+          Add some help page here maybe
         </div>
       </div>
-
-
-      <div id="historyTab" class="tab">
-        <div class="row-fluid title-bar">
-          <div class="span7">
-            <h4> Extension Version History </h4>
-          </div>
-        </div>
-        <div class="row-fluid" id="help">
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">v 4.3</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>Fixed</p>
-              </div>
-              <div class="span8 ">
-                <p>Undefineds in download list</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p>New</p>
-              </div>
-              <div class="span8 ">
-                <p>Clear deleted, completed and failed downloads</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p></p>
-              </div>
-              <div class="span8 ">
-                <p>Option to disable download starting animation</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 offset1">
-                <p></p>
-              </div>
-              <div class="span8 ">
-                <p>added button in pop up to directly go to chrome://downloads</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-
-      <div id="trTab" class="tab">
-        <div class="row-fluid title-bar">
-          <div class="span7">
-            <h4> Help With Translation </h4>
-          </div>
-        </div>
-        <div class="row-fluid" id="help">
-          <div class="row-fluid setting">
-            <div class="row-fluid">
-              <div class="span12">
-                <p style="font-size:18px;">Here is how you can help with better translation of this extension into your
-                  language.</p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span1 offset1">
-                <p>Step 1:</p>
-              </div>
-              <div style="font-size:16px;" class="span10">
-                <p>Identify your Language Code
-
-                  <table border="1" style="width:50%">
-                    <tr>
-                      <td>English</td>
-                      <td>en</td>
-                    </tr>
-                    <tr>
-                      <td>Russian</td>
-                      <td>ru</td>
-                    </tr>
-                    <tr>
-                      <td>Chinese</td>
-                      <td>zh</td>
-                    </tr>
-                    <tr>
-                      <td>Arabic</td>
-                      <td>ar</td>
-                    </tr>
-                    <tr>
-                      <td>Danish</td>
-                      <td>da</td>
-                    </tr>
-                    <tr>
-                      <td>German</td>
-                      <td>de</td>
-                    </tr>
-                    <tr>
-                      <td>Spanish</td>
-                      <td>es</td>
-                    </tr>
-                    <tr>
-                      <td>French</td>
-                      <td>fr</td>
-                    </tr>
-                    <tr>
-                      <td>Indonesian</td>
-                      <td>id</td>
-                    </tr>
-                    <tr>
-                      <td>Italian</td>
-                      <td>it</td>
-                    </tr>
-                    <tr>
-                      <td>Japanese</td>
-                      <td>ja</td>
-                    </tr>
-                    <tr>
-                      <td>Dutch</td>
-                      <td>nl</td>
-                    </tr>
-                    <tr>
-                      <td>Dutch</td>
-                      <td>nl</td>
-                    </tr>
-                    <tr>
-                      <td>Portuguese</td>
-                      <td>pt</td>
-                    </tr>
-                    <tr>
-                      <td>Ukrainian</td>
-                      <td>uk</td>
-                    </tr>
-                    <tr>
-                      <td>Vietnamese</td>
-                      <td>vi</td>
-                    </tr>
-                  </table>
-                </p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span1 offset1">
-                <p>Step 2:</p>
-              </div>
-
-              <div style="font-size:16px;" class="span10">
-                <p>Locate actual message files in your languages at <a target='_blank'
-                    href="https://github.com/prabhat90/DownloadManager/tree/master/_locales">github.com/prabhat90/DownloadManager</a>
-                </p>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class="span1 offset1">
-                <p></p>
-              </div>
-              <div style="font-size:16px;" class="span10">
-                <p>open messages.json file (inside the folder of your language code) in the language that you want to
-                  translate from and in the language that you want to translate into in other tab.</p>
-              </div>
-
-            </div>
-
-            <div class="row-fluid">
-              <div class="span1 offset1">
-                <p>Step 3:</p>
-              </div>
-
-
-              <div style="font-size:16px;" class="span10">
-                <p>If u think something is mis-translated. You can tells us your suggested translation (or request
-                  translation into your language if it is not yet supported) comment/post at <a
-                    href="https://github.com/prabhat90/DownloadManager/issues" target='_blank'>github</a> or <a
-                    href="https://www.facebook.com/ChromeDownloadManager" target="_blank">our facebook page</a> or <a
-                    href="https://chrome.google.com/webstore/support/daoidaoebhfcgccdpgjjcbdginkofmfe?hl=en&gl=IN#feature"
-                    target="_blank">extension feedback page</a></p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
 
     </div>
-
-    <!--
-      <br>
-      <br>
-      <br>
-
-
-      [x] Enable Right click menu
-      - Enables Right click "save securely"
-      - get link
-      - xmlrequest to link, dl in js to variable, get filename from header
-      - if xml request failed -> show "cant be downloaded securely"
-      - post to filewall, get result url
-      - init download from result url
-
-      [ ] Automatically cancle non secure download
-      - Abort all downloads not initialized via "download securely" or that can not be downloaded securely
-      - is imply by auto secure all downloads
-
-      [ ] Automatically secure all downloads
-      - Intercept dl, cancel, retry with "download securely"
-
-
-      Automaticlly secure downloads from these Urls: (if autosecure is OFF)
-      [
-      ..
-      ..
-      ]
-
-      Exclude these url fro Automaticlly secure downloads: (if autosecure is ON)
-      [
-      ..
-      ..
-      ]
-
-      enable_context_menu
-      auto_secure_downloads
-      auto_cancel_insecure
-      auto_secure_urls
-      auto_secure_exclude_urls
-
-      <br>
-      <input type="checkbox" id="enable_context_menu">Enable Right click menu
-      <br>
-
-      <input type="checkbox" id="auto_cancel_insecure">Automatically cancle non secure download
-      <br>
-
-      <input type="checkbox" id="auto_secure_downloads">Automatically secure all downloads
-      <br>
-
-
-
-
-      <div id="exclude">
-        <ul>
-          <li> heise.de delete </li>
-          <li> heise.de delete </li>
-        </ul>
-      </div>
-
-      <div id="include">
-        <ul>
-          <li> test.de delete </li>
-          <li> heise.de delete </li>
-        </ul>
-      </div>
-
-    -->
+  </div>
 
 </body>
 
