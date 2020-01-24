@@ -57,6 +57,7 @@ let template_str = `<div class="item"  id="item">
 
 
 function DownloadItem(url) {
+    console.log('DownloadItem', this);
     var item = this;
 
     sendAnimMsg('start');
@@ -105,9 +106,10 @@ function DownloadItem(url) {
     };
 
     item.div.onclick = function (event) {
+        console.log('click', item);
 
-        item.open();
-        window.close();
+        // item.open();
+        // window.close();
         return false;
 
     };
@@ -365,6 +367,7 @@ DownloadItem.prototype.start_process = function () {
                 };
                 let type = xhr.getResponseHeader('Content-Type');
                 if (xhr.status == 200) {
+                    console.log('state in_progress')
                     xhr.downloadItem.state = "in_progress";
                     xhr.downloadItem.render();
                     var filewall = new Filewall(xhr.downloadItem.filename, xhr.response, xhr.downloadItem );
