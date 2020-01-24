@@ -1,4 +1,5 @@
 
+
 function Filewall(filename, data, downloadItem) {
 
     var filewall = this;
@@ -18,6 +19,7 @@ function Filewall(filename, data, downloadItem) {
 }
 
 Filewall.prototype.setState = function (new_state) {
+    console.log('Filewall state: ', new_state)
     if(new_state !== this.state){
         this.downloadItem.onFilewallStateChanged(this, new_state);
     }
@@ -25,12 +27,14 @@ Filewall.prototype.setState = function (new_state) {
 }
 
 Filewall.prototype.authorize = function () {
+    console.log('authorize is called');
+
     this.setState("authorize");
 
     var authrequest = new XMLHttpRequest();
     authrequest.filewall = this;
 
-    authrequest.open("POST", window.baseurl + "/api/v1/authorize", true);
+    authrequest.open("POST", window.baseurl + "/api/authorize", true);
     authrequest.onload = function () {
         if (this.status >= 200 && this.status < 400) {
             var response_data = JSON.parse(this.responseText);
@@ -134,7 +138,7 @@ Filewall.prototype.poll = function () {
     };
 
     getrequest.setRequestHeader("Content-Type", "application/json");
-    getrequest.setRequestHeader("apikey", APIKEY)
+    getrequest.setRequestHeader("apikey", window.apikey)
     getrequest.send(null);
     
 };
