@@ -1,6 +1,7 @@
 {
+    "$schema": "http://json.schemastore.org/webextension",
     "name"       : "Filewall.io for Chrome",
-    "version"    : "1.0",
+    "version"    : "0.0.1",
     "description": "Filewall.io Chrome Extension",
     "default_locale": "en",
     "manifest_version": 2,
