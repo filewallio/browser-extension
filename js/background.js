@@ -10,7 +10,8 @@ chrome.runtime.onInstalled.addListener(function () {
     let auto_secure_urls = [];
     let auto_secure_exclude_urls = [];
 
-    chrome.storage.sync.get(["baseurl", "username", "apikey", "enable_context_menu", "auto_secure_downloads", "auto_cancel_insecure", "auto_secure_urls", "auto_secure_exclude_urls"], function (data) {
+    const dataItems = ["baseurl", "username", "apikey", "enable_context_menu", "auto_secure_downloads", "auto_cancel_insecure", "auto_secure_urls", "auto_secure_exclude_urls"];
+    chrome.storage.sync.get(dataItems, function (data) {
         if(data.baseurl  === undefined){ data.baseurl  = window.baseurl; }
         if(data.username === undefined){ data.username = ""; }
         if(data.apikey   === undefined){ data.apikey   = ""; }
