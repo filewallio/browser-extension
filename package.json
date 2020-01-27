@@ -4,7 +4,8 @@
   "description": "Browser extension for filewall.io",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "web-ext run --config=web-ext-config.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/filewallio/chrome-extension/issues"
   },
-  "homepage": "https://github.com/filewallio/chrome-extension#readme"
+  "homepage": "https://github.com/filewallio/chrome-extension#readme",
+  "devDependencies": {
+    "webextension-polyfill": "^0.6.0"
+  }
 }
