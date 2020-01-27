@@ -2,7 +2,7 @@
 
 this.active_downloads = [];
 
-this.apikey = "";
+this.apiKey = "";
 // this.baseurl = "http://127.0.0.1:8000";
 this.baseurl = "https://filewall.io";
 

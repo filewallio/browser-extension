@@ -42,11 +42,11 @@ $(document).ready(function () {
 
 
 
-    const dataItems = ["username", "apikey", "enable_context_menu", "auto_secure_downloads", "auto_secure_urls", "auto_secure_exclude_urls"];
+    const dataItems = ["username", "apiKey", "enable_context_menu", "auto_secure_downloads", "auto_secure_urls", "auto_secure_exclude_urls"];
     browser.storage.sync.get(dataItems).then((data) => {
 
         document.getElementById("username").innerHTML = data.username;
-        if (data.apikey == "" || data.apikey === undefined) {
+        if (data.apiKey == "" || data.apiKey === undefined) {
             show_must_login();
         } else {
             show_is_logged_in();
@@ -137,7 +137,7 @@ $(document).ready(function () {
     reset_username.onclick = function (e) {
         document.getElementById("input_password").value = "";
         document.getElementById("input_username").value = "";
-        browser.storage.sync.set({ username: "", apikey: "" }).then();
+        browser.storage.sync.set({ username: "", apiKey: "" }).then();
         show_must_login();
     }
 
@@ -154,11 +154,11 @@ $(document).ready(function () {
             if (this.status >= 200 && this.status < 400) {
                 var response_data = JSON.parse(this.responseText);
                 if (response_data.error === undefined) {
-                    browser.storage.sync.set({ "apikey": response_data.apikey, "username": input_username }).then();
+                    browser.storage.sync.set({ "apiKey": response_data.apiKey, "username": input_username }).then();
                     show_is_logged_in();
                     document.getElementById("username").innerHTML = input_username;
                     browser.runtime.getBackgroundPage().then((page) => {
-                        page.apikey = response_data.apikey;
+                        page.apiKey = response_data.apiKey;
                     });
                 } else {
                     show_must_login("Incorrect email or password");
