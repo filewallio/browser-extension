@@ -81,19 +81,20 @@ function DownloadItem(url) {
     item.div.item = item;
 
     item.getElement('referrer').onclick = function (event) {
-        chrome.tabs.create({ url: item.referrer });
+        browser.tabs.create({ url: item.referrer });
         event.stopPropagation();
         return false;
     };
 
     item.getElement('url').onclick = function (event) {
-        chrome.tabs.create({ url: item.url });
+        browser.tabs.create({ url: item.url });
         event.stopPropagation();
         return false;
     };
 
     item.getElement('by-ext').onclick = function (event) {
-        chrome.tabs.create({ url: 'chrome://extensions#' + item.byExtensionId });
+        //TODO: what does this do?
+        // browser.tabs.create({ url: 'chrome://extensions#' + item.byExtensionId });
         event.stopPropagation();
         return false;
     }
@@ -165,7 +166,7 @@ DownloadItem.prototype.getElement = function (name) {
 DownloadItem.prototype.render = function () {
     var item = this;
 
-    let views = chrome.extension.getViews({ type: "popup" });
+    let views = browser.extension.getViews({ type: "popup" });
     for (let i = 0; i < views.length; i++) {
         let items_div = views[i].document.getElementById('items');
 
@@ -205,7 +206,7 @@ DownloadItem.prototype.render = function () {
     }
     if (item.endTime) {
         item.endTime = new Date(item.endTime);
-    }                         
+    }
 
     if (item.filename && !item.icon_url) {
         /* TODO
@@ -250,28 +251,25 @@ DownloadItem.prototype.render = function () {
         }
     }
     if (item.byExtensionId && item.byExtensionName) {
-        chrome.permissions.contains({ permissions: ['management'] },
-            function (result) {
-                if (result) {
-                    setByExtension(true);
-                } else {
-                    setByExtension(false);
-                    if (!localStorage.managementPermissionDenied) {
-                        document.getElementById('request-management-permission').hidden = false;
-                        document.getElementById('grant-management-permission').onclick =
-                            function () {
-                                chrome.permissions.request({ permissions: ['management'] },
-                                    function (granted) {
-                                        setByExtension(granted);
-                                        if (!granted) {
-                                            localStorage.managementPermissionDenied = true;
-                                        }
-                                    });
-                                return false;
-                            };
-                    }
+        browser.permissions.contains({ permissions: ['management'] }).then((result) => {
+            if (result) {
+                setByExtension(true);
+            } else {
+                setByExtension(false);
+                if (!localStorage.managementPermissionDenied) {
+                    document.getElementById('request-management-permission').hidden = false;
+                    document.getElementById('grant-management-permission').onclick = () => {
+                        browser.permissions.request({ permissions: ['management'] }).then((granted) => {
+                            setByExtension(granted);
+                            if (!granted) {
+                                localStorage.managementPermissionDenied = true;
+                            }
+                        });
+                        return false;
+                    };
                 }
-            });
+            }
+        });
     } else {
         setByExtension(false);
     }
@@ -332,17 +330,17 @@ DownloadItem.prototype.onErased = function () {
 };
 
 DownloadItem.prototype.removeFile = function () {
-    chrome.downloads.removeFile(this.id);
+    browser.downloads.removeFile(this.id);
     this.deleted = true;
     this.render();
 };
 
 DownloadItem.prototype.erase = function () {
-    chrome.downloads.erase({ id: this.id });
+    browser.downloads.erase({ id: this.id });
 };
 
 DownloadItem.prototype.cancel = function () {
-    chrome.downloads.cancel(this.id);
+    browser.downloads.cancel(this.id);
 };
 
 DownloadItem.prototype.start_process = function () {
@@ -399,7 +397,7 @@ DownloadItem.prototype.onFilewallSuccess = function (filewallItem, api_response)
        
     sendAnimMsg('success');
    
-    chrome.downloads.download({
+    browser.downloads.download({
         url: api_response.links.download,
     });
     let filterid = this.id
@@ -407,7 +405,7 @@ DownloadItem.prototype.onFilewallSuccess = function (filewallItem, api_response)
         return o.id !== filterid;
     });
 
-    let views = chrome.extension.getViews({ type: "popup" });
+    let views = browser.extension.getViews({ type: "popup" });
     let has_active_downloads = window.active_downloads.length > 0;
 
     for (let i = 0; i < views.length; i++) {

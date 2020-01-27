@@ -2,26 +2,26 @@
 
 
 window.addEventListener('load', function () {
-    ga('send', 'pageview', '/chrome-extension/show');
+    ga('send', 'pageview', '/extension/show');
 
-    chrome.runtime.getBackgroundPage(function callback(page){
+    browser.runtime.getBackgroundPage().then((page) => {
 
-        for(var index in page.active_downloads) { 
+        for (var index in page.active_downloads) {
             page.active_downloads[index].render();
         };
 
-        if(page.active_downloads == 0){
+        if (page.active_downloads == 0) {
             document.getElementById('head').style.display = "block";
-        }else{
+        } else {
             document.getElementById('head').style.display = "none";
         }
 
     });
-    
+
     let optionsButton = document.getElementById('options-open');
 
-    optionsButton.onclick = function(element) {
-        chrome.runtime.openOptionsPage();
+    optionsButton.onclick = () => {
+        browser.runtime.openOptionsPage();
     };
 
 });

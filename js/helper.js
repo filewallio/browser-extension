@@ -17,30 +17,30 @@ this.baseurls = [
 function update_icon() {
     let nr_of_downloads = active_downloads.length;
     if (nr_of_downloads == 0) {
-        chrome.browserAction.setBadgeText({ text: "" });
+        browser.browserAction.setBadgeText({ text: "" });
     } else {
-        chrome.browserAction.setBadgeText({ text: "" + nr_of_downloads });
+        browser.browserAction.setBadgeText({ text: "" + nr_of_downloads });
     }
 }
 
-function cancel_and_erase_downlad(chromeDownloadItem) {
-    chrome.downloads.cancel(chromeDownloadItem.id);
-    if (chromeDownloadItem.state == "complete") {
-        chrome.downloads.removeFile(chromeDownloadItem.id);
+function cancel_and_erase_downlad(downloadItem) {
+    browser.downloads.cancel(downloadItem.id);
+    if (downloadItem.state == "complete") {
+        browser.downloads.removeFile(downloadItem.id);
     }
-    chrome.downloads.erase({id:chromeDownloadItem.id});
+    browser.downloads.erase({id: downloadItem.id});
 }
 
 
 
 function setLastOpened() {
     localStorage.popupLastOpened = (new Date()).getTime();
-    chrome.runtime.sendMessage('poll');
+    browser.runtime.sendMessage('poll');
 };
 
 function loadI18nMessages() {
     function setProperty(selector, prop, msg) {
-        document.querySelector(selector)[prop] = chrome.i18n.getMessage(msg);
+        document.querySelector(selector)[prop] = browser.i18n.getMessage(msg);
     }
 
     setProperty('title', 'innerText', 'tabTitle');
@@ -145,22 +145,22 @@ function formatSpeed(ms, bytes) {
 function formatTimeLeft(openWhenComplete, ms) {
     var prefix = openWhenComplete ? 'openWhenComplete' : 'timeLeft';
     if (ms < 1000) {
-        return chrome.i18n.getMessage(prefix + 'Finishing');
+        return browser.i18n.getMessage(prefix + 'Finishing');
     }
     var days = parseInt(ms / (24 * 60 * 60 * 1000));
     var hours = parseInt(ms / (60 * 60 * 1000)) % 24;
     if (days) {
-        return chrome.i18n.getMessage(prefix + 'Days', [days, hours]);
+        return browser.i18n.getMessage(prefix + 'Days', [days, hours]);
     }
     var minutes = parseInt(ms / (60 * 1000)) % 60;
     if (hours) {
-        return chrome.i18n.getMessage(prefix + 'Hours', [hours, minutes]);
+        return browser.i18n.getMessage(prefix + 'Hours', [hours, minutes]);
     }
     var seconds = parseInt(ms / 1000) % 60;
     if (minutes) {
-        return chrome.i18n.getMessage(prefix + 'Minutes', [minutes, seconds]);
+        return browser.i18n.getMessage(prefix + 'Minutes', [minutes, seconds]);
     }
-    return chrome.i18n.getMessage(prefix + 'Seconds', [seconds]);
+    return browser.i18n.getMessage(prefix + 'Seconds', [seconds]);
 }
 
 
@@ -185,10 +185,11 @@ function arrayFrom(seq) {
 };
 
 
+// TODO: what is this for?
 function sendAnimMsg(msg) {
-	chrome.tabs.query({active: true}, function (tabs) {
-		tabs.forEach(function (tab) {
-			chrome.tabs.sendMessage(tab.id, msg);
+	browser.tabs.query({active: true}).then( tabs => {
+		tabs.forEach(tab => {
+			browser.tabs.sendMessage(tab.id, msg);
 		})
 	})
 }

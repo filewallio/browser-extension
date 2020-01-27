@@ -9,46 +9,46 @@ function registerListener() {
 }
 
 $(document).ready(function () {
-    ga('send', 'pageview', '/chrome-extension/options');
+    ga('send', 'pageview', '/extension/options');
 
-	try{
-        if(document.location.hash){
-    		$(".menuItem.selected").removeClass("selected"); 
-    		$(".tab.activeTab").removeClass("activeTab");
-    		$(document.location.hash+"Menu").addClass("selected");
-    		$("#"+$(document.location.hash+"Menu").attr("data-tab")).addClass("activeTab");
+    try {
+        if (document.location.hash) {
+            $(".menuItem.selected").removeClass("selected");
+            $(".tab.activeTab").removeClass("activeTab");
+            $(document.location.hash + "Menu").addClass("selected");
+            $("#" + $(document.location.hash + "Menu").attr("data-tab")).addClass("activeTab");
         }
-	} catch(e){
-		console.log(e);
-	}
-    
-    show_must_login = function(lasterror){
+    } catch (e) {
+        console.log(e);
+    }
+
+    show_must_login = function (lasterror) {
         document.getElementById("is_logged_in").style.display = "none";
-        document.getElementById("must_login").style.display   = "block";
-        if(lasterror !== undefined){
+        document.getElementById("must_login").style.display = "block";
+        if (lasterror !== undefined) {
             document.getElementById("lasterror").style.display = "block";
             document.getElementById("nolasterror").style.display = "none";
-            document.getElementById("lasterror").innerHTML     = lasterror;
-        }else{
+            document.getElementById("lasterror").innerHTML = lasterror;
+        } else {
             document.getElementById("lasterror").style.display = "none";
             document.getElementById("nolasterror").style.display = "block";
-            document.getElementById("lasterror").innerHTML     = "";  
+            document.getElementById("lasterror").innerHTML = "";
         }
     };
-    show_is_logged_in = function(){
+    show_is_logged_in = function () {
         document.getElementById("is_logged_in").style.display = "block";
-        document.getElementById("must_login").style.display   = "none";
+        document.getElementById("must_login").style.display = "none";
     };
 
 
 
+    const dataItems = ["username", "apikey", "enable_context_menu", "auto_secure_downloads", "auto_secure_urls", "auto_secure_exclude_urls"];
+    browser.storage.sync.get(dataItems).then((data) => {
 
-    chrome.storage.sync.get(["username", "apikey", "enable_context_menu", "auto_secure_downloads", "auto_secure_urls", "auto_secure_exclude_urls"], function (data) {
-        
         document.getElementById("username").innerHTML = data.username;
-        if(data.apikey == "" || data.apikey === undefined){
+        if (data.apikey == "" || data.apikey === undefined) {
             show_must_login();
-        }else{
+        } else {
             show_is_logged_in();
         }
 
@@ -58,16 +58,16 @@ $(document).ready(function () {
             height: "30",
             checked: data.enable_context_menu
         }), $("#enable_context_menu").bind("checked", function () {
-            chrome.storage.sync.set({enable_context_menu: true}, function() {});
-            chrome.contextMenus.create({
+            browser.storage.sync.set({ enable_context_menu: true }).then();
+            browser.contextMenus.create({
                 id: "secure_download",
                 title: "Secure Download",
                 type: 'normal',
                 contexts: ['link'],
             });
         }), $("#enable_context_menu").bind("unchecked", function () {
-            chrome.storage.sync.set({enable_context_menu: false}, function() {});
-            chrome.contextMenus.remove("secure_download");
+            browser.storage.sync.set({ enable_context_menu: false }).then();
+            browser.contextMenus.remove("secure_download");
         });
 
         $("#auto_secure_downloads").jqxSwitchButton({
@@ -76,27 +76,27 @@ $(document).ready(function () {
             height: "30",
             checked: data.auto_secure_downloads
         }), $("#auto_secure_downloads").bind("checked", function () {
-            chrome.storage.sync.set({auto_secure_downloads: true}, function() {})
+            browser.storage.sync.set({ auto_secure_downloads: true }).then()
         }), $("#auto_secure_downloads").bind("unchecked", function () {
-            chrome.storage.sync.set({auto_secure_downloads: false}, function() {})
+            browser.storage.sync.set({ auto_secure_downloads: false }).then()
         });
-    
+
 
         let element = document.getElementById("auto_secure_urls_container")
         element.innerHTML = "";
         for (let i = 0; i < data.auto_secure_urls.length; i++) {
-            let li =  document.createElement("li");
+            let li = document.createElement("li");
             let span = document.createElement("span");
             span.innerHTML = data.auto_secure_urls[i];
             let span1 = document.createElement("span");
             span1.innerHTML = "remove";
             span1.data_url = data.auto_secure_urls[i];
-            span1.onclick = function(e){
-                chrome.storage.sync.get("auto_secure_urls", function(data) {
-                    var filtered = data.auto_secure_urls.filter(function(value, index, arr){
+            span1.onclick = function (e) {
+                browser.storage.sync.get("auto_secure_urls").then(data => {
+                    var filtered = data.auto_secure_urls.filter(function (value, index, arr) {
                         return value != e.target.data_url;
                     });
-                    chrome.storage.sync.set({auto_secure_urls: filtered}, function() {})
+                    browser.storage.sync.set({ auto_secure_urls: filtered }).then();
                 });
             }
             li.appendChild(span);
@@ -109,18 +109,18 @@ $(document).ready(function () {
         element = document.getElementById("auto_secure_exclude_urls_container")
         element.innerHTML = "";
         for (let i = 0; i < data.auto_secure_exclude_urls.length; i++) {
-            let li =  document.createElement("li");
+            let li = document.createElement("li");
             let span = document.createElement("span");
             span.innerHTML = data.auto_secure_exclude_urls[i];
             let span1 = document.createElement("span");
             span1.innerHTML = "remove";
             span1.data_url = data.auto_secure_exclude_urls[i];
-            span1.onclick = function(e){
-                chrome.storage.sync.get("auto_secure_exclude_urls", function(data) {
-                    var filtered = data.auto_secure_exclude_urls.filter(function(value, index, arr){
+            span1.onclick = function (e) {
+                browser.storage.sync.get("auto_secure_exclude_urls").then((data) => {
+                    var filtered = data.auto_secure_exclude_urls.filter(function (value, index, arr) {
                         return value != e.target.data_url;
                     });
-                    chrome.storage.sync.set({auto_secure_exclude_urls: filtered}, function() {})
+                    browser.storage.sync.set({ auto_secure_exclude_urls: filtered }, function () { })
                 });
             }
             li.appendChild(span);
@@ -134,16 +134,16 @@ $(document).ready(function () {
 
 
     let reset_username = document.getElementById("reset_username");
-    reset_username.onclick = function(e){
+    reset_username.onclick = function (e) {
         document.getElementById("input_password").value = "";
         document.getElementById("input_username").value = "";
-        chrome.storage.sync.set({username: "",apikey:""}, function() {})
+        browser.storage.sync.set({ username: "", apikey: "" }).then();
         show_must_login();
     }
 
-    
+
     let signin = document.getElementById("submit_login");
-    signin.onclick = function(e){
+    signin.onclick = function (e) {
         let input_username = document.getElementById("input_username").value;
         let input_password = document.getElementById("input_password").value;
         document.getElementById("input_password").value = "";
@@ -153,14 +153,14 @@ $(document).ready(function () {
         authrequest.onload = function () {
             if (this.status >= 200 && this.status < 400) {
                 var response_data = JSON.parse(this.responseText);
-                if(response_data.error === undefined){
-                    chrome.storage.sync.set({"apikey": response_data.apikey, "username": input_username}, function() {});
+                if (response_data.error === undefined) {
+                    browser.storage.sync.set({ "apikey": response_data.apikey, "username": input_username }).then();
                     show_is_logged_in();
                     document.getElementById("username").innerHTML = input_username;
-                    chrome.runtime.getBackgroundPage(function callback(page){
-                         page.apikey = response_data.apikey;
+                    browser.runtime.getBackgroundPage().then((page) => {
+                        page.apikey = response_data.apikey;
                     });
-                }else{
+                } else {
                     show_must_login("Incorrect email or password");
                 }
             }
@@ -168,23 +168,20 @@ $(document).ready(function () {
                 show_must_login("Login failed");
             }
         };
-    
+
         authrequest.onerror = function () {
             show_must_login("Login failed");
         };
-    
+
         let formData = new FormData();
         formData.append("username", input_username);
         formData.append("password", input_password);
 
         authrequest.send(formData);
     }
-    
 
-    
-}), window.onload = function () {
 
-   
-};
+
+}), window.onload = function () { };
 
 

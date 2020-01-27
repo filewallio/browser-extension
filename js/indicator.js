@@ -1,5 +1,5 @@
 
-chrome.runtime.onMessage.addListener(function (message) {
+browser.runtime.onMessage.addListener(function (message) {
 	console.log('msg received:'+message);
 	showStartAnim(message);
 });
@@ -8,10 +8,10 @@ function showStartAnim(msg){
 	var src;
 	var shadow;
 	if(msg=='start'){
-		src=chrome.runtime.getURL('images/animate_start.png');
+		src=browser.runtime.getURL('images/animate_start.png');
 		shadow='box-shadow:10px 10px 50px 20px rgb(147, 253, 147);';
 	} else if (msg=='success'){
-		src=chrome.runtime.getURL('images/animate_success.png');
+		src=browser.runtime.getURL('images/animate_success.png');
 	} else {
 		return;
 	}

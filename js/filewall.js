@@ -48,7 +48,7 @@ Filewall.prototype.authorize = function () {
     };
 
     authrequest.onerror = function () {
-        console.log(this.responseText); 
+        console.log(this.responseText);
         this.filewall.error = "authorization_failed";
         this.filewall.setState("error");
     };
