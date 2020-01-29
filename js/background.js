@@ -1,4 +1,5 @@
-'use strict';
+import { storage } from './storage.js';
+
 
 //
 // ON INSTALL
@@ -7,40 +8,8 @@ browser.runtime.onInstalled.addListener(() => {
     ga('send', 'pageview', '/extension/install');
     console.log('on installed')
 
-    let auto_secure_urls = [];
-    let auto_secure_exclude_urls = [];
-
-    const dataItems = [
-        'baseurl',
-        'username',
-        'apiKey',
-        'enable_context_menu',
-        'auto_secure_downloads',
-        'auto_cancel_insecure',
-        'auto_secure_urls',
-        'auto_secure_exclude_urls'
-    ];
-    browser.storage.sync.get(dataItems).then(data => {
-        console.log('pre-data', data.apiKey)
-        // restore settings synced to user account
-
-        // TODO find better way to do this
-        if (!data.apiKey) {
-            data = { ...data, apiKey: '577123ae-4821-4bc8-a8c2-a510b96f47d8' }
-        }
-
-        if (data.baseurl === undefined) { data.baseurl = window.baseurl; }
-        if (data.username === undefined) { data.username = ''; }
-        if (data.apiKey === undefined) { data.apiKey = ''; }
-        if (data.enable_context_menu === undefined) { data.enable_context_menu = true; } // not userselectable at the moment
-        if (data.auto_secure_downloads === undefined) { data.auto_secure_downloads = false; }// not userselectable at the moment
-        if (data.auto_cancel_insecure === undefined) { data.auto_cancel_insecure = false; }// not userselectable at the moment
-        if (data.auto_secure_urls === undefined) { data.auto_secure_urls = auto_secure_urls; }// not userselectable at the moment
-        if (data.auto_secure_exclude_urls === undefined) { data.auto_secure_exclude_urls = auto_secure_exclude_urls; }// not userselectable at the moment
-
-        window.apiKey = data.apiKey;
-        window.baseurl = data.baseurl;
-
+    storage.appDataAsync().then(data => {
+        console.log('onInstalled', data)
         if (data.enable_context_menu === true) {
             browser.contextMenus.create({
                 id: 'secure_download',
@@ -57,15 +26,10 @@ browser.runtime.onInstalled.addListener(() => {
         } else {
             browser.contextMenus.remove('secure_download');
         }
-
-        console.log('mid-data', data.apiKey)
-        browser.storage.sync.set(data).then( a => browser.storage.sync.get(dataItems).then( a => console.log('post-data', a.apiKey)));
     });
-
 
     // browser.browserAction.setBadgeBackgroundColor({ color: [0, 99, 255, 230] });
 })
-// chrome.runtime.onInstalled.addListener(function () { });
 
 
 
@@ -73,19 +37,21 @@ browser.runtime.onInstalled.addListener(() => {
 // INTERCEPT DOWNLOADS
 //
 
+// This will catch normal downloads
 // CREATE
 browser.downloads.onCreated.addListener( downloadItem => {
+    console.log('on download')
 
-    const dataItems = ['auto_secure_downloads', 'auto_cancel_insecure', 'auto_secure_urls', 'auto_secure_exclude_urls'];
-    browser.storage.sync.get(dataItems).then( (data) => {
+    storage.appDataAsync().then(data => {
+        console.log('downloadItem', data)
         if (data.auto_secure_downloads === true) {
-            for (let index in window.baseurls) {
-                if (downloadItem.url.startsWith(window.baseurls[index])) {
-                    return
+            for (const baseUrl of window.baseurls) {
+                if (downloadItem.url.startsWith(baseUrl)) {
+                    return;
                 }
             }
-            for (let index in data.auto_secure_exclude_urls) {
-                if (downloadItem.url.startsWith(data.auto_secure_exclude_urls[index])) { // url is excluded
+            for (const autoSecureExcludeUrl of data.auto_secure_exclude_urls) {
+                if (downloadItem.url.startsWith(autoSecureExcludeUrl)) { // url is excluded
                     return
                 }
             }
@@ -93,9 +59,10 @@ browser.downloads.onCreated.addListener( downloadItem => {
             download_to_memory(downloadItem.url);
 
         } else {
+            console.log('data.auto_secure_downloads === false')
             let canceled = false;
-            for (let index in data.auto_secure_urls) {
-                if (downloadItem.url.startsWith(data.auto_secure_urls[index])) { // url is included
+            for (const autoSecureUrl of data.auto_secure_urls) {
+                if (downloadItem.url.startsWith(autoSecureUrl)) { // url is included
                     cancel_and_erase_downlad(downloadItem);
                     download_to_memory(downloadItem.url);
                     canceled = true;
@@ -103,7 +70,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
                 }
             }
             if (canceled == false && data.auto_cancel_insecure === true) {
-                cancel_and_erase_downlad(downloadItem.url);
+                cancel_and_erase_downlad(downloadItem);
             }
         }
     });
@@ -124,117 +91,3 @@ function download_to_memory(download_url) {
     active_downloads.push(downloadItem);
     update_icon();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-//
-// Do something to each page
-//
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (tab.url.startsWith('##test')) {
-         }
-    if (tab.url.startsWith('https://www.heise.de')) {
-        //alert('heise');
-    }
-    if (changeInfo.status == 'complete') {
-    }
-});
-
-function update_icon(nr_of_downloads) {
-    if (nr_of_downloads == 0) {
-        chrome.browserAction.setBadgeText({ text: '' });
-    } else {
-        chrome.browserAction.setBadgeText({ text: '' + nr_of_downloads });
-    }
-}
-*/
-
-
-
-
-/*
- overwrite filename
-    //suggest({filename: downloads[item.id].tmp_filename});// overwrite filename
-
-    if(downloads[downloadDelta.id] !== undefined){           // intercepted download
-        if(downloadDelta.state !== undefined){               // state change
-            if(downloadDelta.state.current === 'complete'){  // finished
-                chrome.downloads.search( { 'id': downloadDelta.id }, function(results) {
-                    let downloadItem = results[0];
-                    if(downloadItem !== undefined){          // download item still exists
-                        if(downloadItem.state == 'complete'){// download finished and ok
-                            // TODO
-                            read_file(downloadItem);
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    let url = downloadItem.finalUrl;
-    return;
-        if(downloadItem.state == 'complete'){
-        chrome.downloads.removeFile(downloadItem.id);
-    }
-    chrome.downloads.cancel(downloadItem.id);
-
-
-
-
-function updated_downloadItem(downloadItem) {
-
-    return
-    let exists = false;
-    for (let index in active_downloads) {
-        if (active_downloads[index].id == downloadItem.id) {
-            active_downloads[index] = downloadItem;
-            exists = true;
-            break;
-        }
-    };
-    if (exists == false) {
-        active_downloads.push(downloadItem);
-    }
-
-    update_icon(active_downloads.length);
-    return;
-    let views = chrome.extension.getViews({ type: 'popup' });
-    for (let i = 0; i < views.length; i++) {
-        views[i].document.getElementById('download_' + downloadItem.id + '_loaded').innerHTML = downloadItem.loaded;
-        views[i].document.getElementById('download_' + downloadItem.id + '_total').innerHTML = downloadItem.total;
-        views[i].document.getElementById('download_' + downloadItem.id + '_url').innerHTML = downloadItem.url;
-        views[i].document.getElementById('download_' + downloadItem.id + '_state').innerHTML = downloadItem.state;
-    }
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-*/
-
-
-
