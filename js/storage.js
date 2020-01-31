@@ -12,7 +12,8 @@ class Storage {
             auto_secure_downloads: false,
             auto_cancel_insecure: false,
             auto_secure_urls: [],
-            auto_secure_exclude_urls: []
+            auto_secure_exclude_urls: [],
+            pollInterval: 2000
         }
         this.initDataItems();
     }
@@ -33,17 +34,7 @@ class Storage {
     initDataItems() {
         this.initInProgress = true;
         this.init = new Promise( (resolve, reject) => {
-            const dataItems = [
-                'schemaVersion',
-                'baseurl',
-                'username',
-                'apiKey',
-                'enable_context_menu',
-                'auto_secure_downloads',
-                'auto_cancel_insecure',
-                'auto_secure_urls',
-                'auto_secure_exclude_urls'
-            ];
+            const dataItems = Object.keys(this.dataItems);
             browser.storage.sync.get(dataItems).then(data => {
                 // restore settings synced to user account
                 this.appData = {
