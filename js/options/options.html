@@ -28,10 +28,20 @@
                     Login
                 </button>
             </div>
+            <div class="margin mdl-color-text--accent" id="technical-error" style="display:none">
+                <b>
+                    There seems to be a technical error and are not able to login, please try again later.
+                </b>
+            </div>
+            <div class="margin mdl-color-text--accent" id="invalid-creds" style="display:none">
+                <b>
+                    Unable to login, please check the username and password.
+                </b>
+            </div>
         </div>
         <div id="logoutDiv" style='display:none'>
             <p>
-                Logged in as <b class="usernameSlug">{{ username }}</b>.
+                Logged in as <b class="usernameSlug"></b>.
             </p>
             <div>
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="logout">
