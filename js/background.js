@@ -10,8 +10,8 @@ browser.runtime.onInstalled.addListener(() => {
     // ga('send', 'pageview', '/extension/install');
     console.log('onInstalled')
 
-    storage.appDataAsync().then(data => {
-        if (data.enable_context_menu === true) {
+    storage.appDataAsync().then(appData => {
+        if (appData['enable-context-menu'] === true) {
             browser.contextMenus.create({
                 id: 'secure_download',
                 title: 'Secure Download',
@@ -28,13 +28,11 @@ browser.runtime.onInstalled.addListener(() => {
         } else {
             browser.contextMenus.remove('secure_download');
         }
-    });
-    storage.appDataAsync().then( appData => {
         // send user to options page if not logged in
         if (!appData.apiKey) {
             browser.runtime.openOptionsPage();
         }
-    })
+    });
 
     // browser.browserAction.setBadgeBackgroundColor({ color: [0, 99, 255, 230] });
 })
