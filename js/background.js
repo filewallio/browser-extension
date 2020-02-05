@@ -29,7 +29,12 @@ browser.runtime.onInstalled.addListener(() => {
             browser.contextMenus.remove('secure_download');
         }
     });
-    browser.runtime.openOptionsPage();
+    storage.appDataAsync().then( appData => {
+        // send user to options page if not logged in
+        if (!appData.apiKey) {
+            browser.runtime.openOptionsPage();
+        }
+    })
 
     // browser.browserAction.setBadgeBackgroundColor({ color: [0, 99, 255, 230] });
 })
