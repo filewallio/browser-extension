@@ -1,5 +1,4 @@
 
-
 function Filewall(filename, data, downloadItem) {
 
     var filewall = this;
@@ -54,7 +53,7 @@ Filewall.prototype.authorize = function () {
     };
 
     authrequest.setRequestHeader("Content-Type", "application/json");
-    authrequest.setRequestHeader("apiKey", window.apiKey);
+    authrequest.setRequestHeader("apiKey", '577123ae-4821-4bc8-a8c2-a510b96f47d8');
     authrequest.send();
 };
 
@@ -138,7 +137,7 @@ Filewall.prototype.poll = function () {
     };
 
     getrequest.setRequestHeader("Content-Type", "application/json");
-    getrequest.setRequestHeader("apiKey", window.apiKey)
+    getrequest.setRequestHeader("apiKey", '577123ae-4821-4bc8-a8c2-a510b96f47d8')
     getrequest.send(null);
     
 };

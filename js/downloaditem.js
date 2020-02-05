@@ -79,82 +79,6 @@ function DownloadItem(url) {
 
     item.div.id = 'item' + item.id;
     item.div.item = item;
-
-    item.getElement('referrer').onclick = function (event) {
-        browser.tabs.create({ url: item.referrer });
-        event.stopPropagation();
-        return false;
-    };
-
-    item.getElement('url').onclick = function (event) {
-        browser.tabs.create({ url: item.url });
-        event.stopPropagation();
-        return false;
-    };
-
-    item.getElement('by-ext').onclick = function (event) {
-        //TODO: what does this do?
-        // browser.tabs.create({ url: 'chrome://extensions#' + item.byExtensionId });
-        event.stopPropagation();
-        return false;
-    }
-
-    //$(item.div).contextMenu(menu1,{theme:'vista'});
-    item.div.oncontextmenu = function (event) {
-
-        //alert("right clicked");		
-        return false;
-    };
-
-    item.div.onclick = function (event) {
-        console.log('click', item);
-
-        // item.open();
-        // window.close();
-        return false;
-
-    };
-    item.div.onmouseover = function () {
-        var openable = (item.state != 'interrupted') && item.exists && !item.deleted;
-        if (openable) {
-            item.div.style.borderLeftColor = '#5bc0de';
-        }
-        else {
-            item.div.style.borderLeftColor = '#d9534f';
-        }
-        if (item.state == 'in_progress' || item.state == 'interrupted' || !item.exists || item.deleted) item.getElement('info').style.display = 'none';
-        else item.getElement('info').style.display = 'inline';
-        return false;
-    };
-    item.div.onmouseout = function () {
-        item.div.style.borderLeftColor = '#eee';
-        //item.getElement('info').style.display = 'none';
-        return false;
-    };
-    
-    item.getElement('cancel').onclick = function (event) {
-        item.cancel();
-        event.stopPropagation();
-        return false;
-    };
-
-    item.getElement('remove-file').onclick = function (event) {
-        item.removeFile();
-        event.stopPropagation();
-        return false;
-    };
-    item.getElement('erase').onclick = function (event) {
-        item.erase();
-        event.stopPropagation();
-        return false;
-    };
-
-    if (item.referrer) {
-        item.getElement('ref').innerText = item.referrer.substr(0, 25) + "...";
-    } else {
-        item.getElement('ref').hidden = true;
-    }
-    item.getElement('url').href = item.url;
     
 }
 
@@ -353,19 +277,19 @@ DownloadItem.prototype.start_process = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 || xhr.status == 0) {
                 
-                try {
-                    var disposition = xhr.getResponseHeader('Content-Disposition');
-                } catch (e) { }
-                if (disposition && disposition.indexOf('attachment') !== -1) {
-                    let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                    let matches = filenameRegex.exec(disposition);
-                    if (matches != null && matches[1]) {
-                        xhr.downloadItem.filename = matches[1].replace(/['"]/g, '');
-                    };
-                };
-                let type = xhr.getResponseHeader('Content-Type');
+                // try {
+                //     var disposition = xhr.getResponseHeader('Content-Disposition');
+                // } catch (e) { }
+                // if (disposition && disposition.indexOf('attachment') !== -1) {
+                //     let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                //     let matches = filenameRegex.exec(disposition);
+                //     if (matches != null && matches[1]) {
+                //         xhr.downloadItem.filename = matches[1].replace(/['"]/g, '');
+                //     };
+                // };
+                // let type = xhr.getResponseHeader('Content-Type');
                 if (xhr.status == 200) {
-                    console.log('state in_progress')
+                    console.log('file downloaded')
                     xhr.downloadItem.state = "in_progress";
                     xhr.downloadItem.render();
                     var filewall = new Filewall(xhr.downloadItem.filename, xhr.response, xhr.downloadItem );
@@ -399,12 +323,16 @@ DownloadItem.prototype.onFilewallSuccess = function (filewallItem, api_response)
    
     browser.downloads.download({
         url: api_response.links.download,
+        filename: api_response.name
     });
+
+    // remove item from active_downloads array
     let filterid = this.id
-    window.active_downloads = window.active_downloads.filter(function(o){        
+    window.active_downloads = window.active_downloads.filter(function(o){
         return o.id !== filterid;
     });
 
+    // update icon
     let views = browser.extension.getViews({ type: "popup" });
     let has_active_downloads = window.active_downloads.length > 0;
 

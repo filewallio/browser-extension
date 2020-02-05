@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json.schemastore.org/webextension",
+    "name": "filewallio",
+    "version": "0.0.0",
+    "default_locale": "en",
+    "manifest_version": 2,
+    "browser_specific_settings" : {
+        "gecko" : {
+            "id" : "firefox-extension@filewall.io"
+        }
+    },
+    "permissions": [
+        "contextMenus"      , 
+        "activeTab"         ,
+        "tabs"              ,
+        "downloads"         ,
+        "storage"           ,
+        "https://*/*"       ,
+        "http://*/*"
+    ],
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://www.googletagmanager.com; object-src 'self'",
+    "background"  : {
+        "scripts": ["./background/background.js"]
+    },
+    "browser_action": {
+        "default_popup": "popup/popup.html",
+        "default_icon": {
+            "16" : "images/icon-16x16.png",
+            "32" : "images/icon-32x32.png",
+            "48" : "images/icon-48x48.png",
+            "128": "images/icon-128x128.png"
+        }
+    },
+    "options_ui": {
+        "open_in_tab": true,
+        "page": "options/options.html"
+    },
+    "content_scripts": [ {
+        "js": [ "indicator.js" ],
+        "matches": [ "<all_urls>"]
+     }],
+    "icons": {
+        "16" : "images/icon-16x16.png",
+        "32" : "images/icon-32x32.png",
+        "48" : "images/icon-48x48.png",
+        "128": "images/icon-128x128.png"
+    },
+    "web_accessible_resources": [
+        "images/animate_start.png",
+        "images/animate_success.png"
+    ]
+}

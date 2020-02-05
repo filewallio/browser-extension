@@ -1,15 +1,16 @@
+// import { browser } from 'webextension-polyfill';
 import { storage } from './storage.js';
+import { downloader } from './downloader.js';
 
-
+const browser = require('webextension-polyfill');
 //
 // ON INSTALL
 //
 browser.runtime.onInstalled.addListener(() => {
-    ga('send', 'pageview', '/extension/install');
-    console.log('on installed')
+    // ga('send', 'pageview', '/extension/install');
+    console.log('onInstalled')
 
     storage.appDataAsync().then(data => {
-        console.log('onInstalled', data)
         if (data.enable_context_menu === true) {
             browser.contextMenus.create({
                 id: 'secure_download',
@@ -20,13 +21,15 @@ browser.runtime.onInstalled.addListener(() => {
 
             browser.contextMenus.onClicked.addListener((info, tab) => {
                 if (info.menuItemId === 'secure_download') {
-                    download_to_memory(info.linkUrl);
+                    downloader.addDownload(info.linkUrl);
+                    // download_to_memory(info.linkUrl);
                 }
             });
         } else {
             browser.contextMenus.remove('secure_download');
         }
     });
+    browser.runtime.openOptionsPage();
 
     // browser.browserAction.setBadgeBackgroundColor({ color: [0, 99, 255, 230] });
 })
@@ -40,7 +43,7 @@ browser.runtime.onInstalled.addListener(() => {
 // This will catch normal downloads
 // CREATE
 browser.downloads.onCreated.addListener( downloadItem => {
-    console.log('on download')
+    console.log('downloads.onCreated')
 
     storage.appDataAsync().then(data => {
         console.log('downloadItem', data)
@@ -77,7 +80,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
 });
 
 // DETERMINE FILENAME
-browser.downloads.onDeterminingFilename.addListener(function (item, suggest) { });
+// browser.downloads.onDeterminingFilename.addListener(function (item, suggest) { });
 // CATCH COMPLETED DOWNLOAD
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE

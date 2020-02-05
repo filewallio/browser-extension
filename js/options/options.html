@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Filewall.io Options</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./options.css" />
+    <script src="../libs/material.min.js"></script>
+    <script src="./options.js" async></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+</head>
+<body>
+    <section>
+        <h2 class="title">Authentication</h2>
+        <div id="loginDiv">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="username" value="tibeene@gmail.com">
+                <label class="mdl-textfield__label" for="username">Username</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="password" id="password" value="6dP4!Xzdu70koeJ0">
+                <label class="mdl-textfield__label" for="password">Password</label>
+            </div>
+            <div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="login">
+                    Login
+                </button>
+            </div>
+        </div>
+        <div id="logoutDiv" style='display:none'>
+            <p>
+                Logged in as <b class="usernameSlug">{{ username }}</b>.
+            </p>
+            <div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="logout">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </section>
+    <section>
+        <h2 class="title">Settings</h2>
+        <!-- <div class="option">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="username">
+                <input type="input" id="username" name="username" class="mdl-switch__input">
+                <span class="mdl-switch__label">Do not remember speed setting across videos</span>
+            </label>
+        </div> -->
+        
+        <!-- <div class="option mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="sample1">
+            <label class="mdl-textfield__label" for="sample1">Text...</label>
+        </div> -->
+        <!-- <div class="option slider">
+            <div class="mdl-textfield mdl-js-textfield box-input">
+                <input class="mdl-textfield__input" type="number" pattern="[0-9]\.[0-9][0-9]?" id="small-increment" name="small-increment" min="0.01" max="0.50" step="0.01">
+            </div>
+            <label for="small-increment">
+                <div style="width: 40%; display: inline-block">
+                    <input class="mdl-slider mdl-js-slider" type="range" id="small-increment" name="small-increment" min="0.01" max="0.50" step="0.01">
+                </div>
+            </label>
+            <label>Small increment</label>
+        </div> -->
+        <div class="option">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enable-context-menu">
+                <input type="checkbox" id="enable-context-menu" name="enable-context-menu" class="mdl-switch__input" checked>
+                <span class="mdl-switch__label">Enable context menu option for secure download</span>
+            </label>
+        </div>
+    </section>
+    <!-- <section>
+        <h2 class="title">About</h2>
+        <p>Created by Timothy Beene.</p>
+    </section> -->
+</body>
+</html>

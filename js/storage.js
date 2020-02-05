@@ -1,19 +1,22 @@
+import { Observable } from 'rxjs';
+
 class Storage {
     constructor() {
         this.initInProgress = false;
         this.init = null;
         this.isDataInit = false;
         this.appData = {
-            schemaVersion: '0.0.1',
-            apiKey: '577123ae-4821-4bc8-a8c2-a510b96f47d8',
-            username: '',
-            baseUrl: '',
-            enable_context_menu: true,
-            auto_secure_downloads: false,
-            auto_cancel_insecure: false,
-            auto_secure_urls: [],
-            auto_secure_exclude_urls: [],
-            pollInterval: 2000
+            'schemaVersion': '1',
+            'apiKey': '',
+            'username': '',
+            'baseUrl': '',
+            'enable-context-menu': true,
+            'auto_secure_downloads': false,
+            'auto_cancel_insecure': false,
+            'auto_secure_urls': [],
+            'auto_secure_exclude_urls': [],
+            'pollInterval': 2000,
+            'pollTimout': 30
         }
         this.initDataItems();
     }
@@ -23,18 +26,25 @@ class Storage {
             if (this.isDataInit) {
                 resolve(this.appData)
             } else if (this.initInProgress) {
-                console.log('} else if (this.initIsProgress) {')
                 return this.init.then( () => resolve(this.appData) );
             } else {
                 this.initDataItems().then( () => resolve(this.appData) )
             }
         })
     }
+    setAppData(newAppData) {
+        return browser.storage.sync.set(newAppData).then()
+    }
+
+    getAppData() {
+        const dataItems = Object.keys(this.appData);
+        return browser.storage.sync.get(dataItems).then( appData => this.appData = appData )
+    }
 
     initDataItems() {
         this.initInProgress = true;
         this.init = new Promise( (resolve, reject) => {
-            const dataItems = Object.keys(this.dataItems);
+            const dataItems = Object.keys(this.appData);
             browser.storage.sync.get(dataItems).then(data => {
                 // restore settings synced to user account
                 this.appData = {
@@ -55,6 +65,18 @@ class Storage {
             });
         });
         return this.init;
+    }
+    onChange() {
+        return new Observable( observer => {
+            // onChangeObserver = observer;
+            // get().then( store => initSpeedInStorage(store) ).then( store => observer.next(store) );
+
+            browser.storage.onChanged.addListener( (changes, areaName) => {
+                if (areaName === 'sync') {
+                    this.getAppData().then( store => observer.next(store) )
+                }
+            });
+        });
     }
 }
 export let storage = new Storage();

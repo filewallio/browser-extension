@@ -1,23 +1,36 @@
 {
   "name": "filewallio",
   "version": "0.0.1",
-  "description": "Browser extension for filewall.io",
+  "description": "Filewall.io Chrome Extension",
+  "author": "filewallio",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "web-ext run --config=web-ext-config.js"
+    "dev": "web-ext run --config=web-ext-config.js",
+    "webpack": "npx webpack --watch --progress"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/filewallio/chrome-extension.git"
   },
-  "author": "filewallio",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/filewallio/chrome-extension/issues"
   },
   "homepage": "https://github.com/filewallio/chrome-extension#readme",
+  "engineStrict": true,
+  "engines": {
+    "npm": ">=5.2.0"
+  },
   "devDependencies": {
+    "copy-webpack-plugin": "^5.1.1",
+    "eslint": "^6.8.0",
+    "generate-json-webpack-plugin": "^0.3.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "rxjs": "^6.5.4",
     "webextension-polyfill": "^0.6.0"
   }
 }
