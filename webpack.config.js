@@ -36,7 +36,8 @@ module.exports = {
 
   entry: {
     'background/background': './js/background.js',
-    'options/options': './js/options/options.js'
+    'options/options': './js/options/options.js',
+    'popup/popup': './js/popup/popup.js'
   },
 
   output: {
@@ -58,7 +59,8 @@ module.exports = {
       { from: 'js/libs/*', to: 'libs', flatten: true },
       // { from: 'js/indicator.js', to: 'indicator.js', flatten: true },
       { from: '_locales', to: '_locales', flatten: false },
-      { from: 'js/popup/*', to: 'popup', flatten: true },
+      { from: 'js/popup/popup.html', to: 'popup', flatten: true },
+      { from: 'js/popup/popup.css', to: 'popup', flatten: true },
       { from: 'js/options/*', to: 'options', flatten: true }
     ], {})
   ]
