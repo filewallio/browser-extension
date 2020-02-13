@@ -1,8 +1,35 @@
 import { filewall } from './filewallModule.js'
+import { ReplaySubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
+const browser = require('webextension-polyfill');
+
 class Downloader {
     constructor() {
         this.activeDownloads = [];
+        this.activeDownload$ = new ReplaySubject()
+        // setInterval(_ => this.activeDownload$.next(['one', 'two', 'three']), 2000)
         this.lastId = 0;
+        this.port
+        console.log('Downloader is init')
+        browser.runtime.onConnect.addListener( port => {
+            this.port = port
+
+            const subscription = this.activeDownload$.subscribe( activeDownloads => {
+                console.log('Downloader activeDownloads', activeDownloads)
+                port.postMessage(activeDownloads)
+            })
+
+            port.onMessage.addListener((msg) => {
+                console.log('Downloader onMessage', msg);
+                port.postMessage('message to Popup.js');
+            })
+
+            port.onDisconnect.addListener( port => {
+                console.log('Downloader onDisconnect', port);
+                subscription.unsubscribe();
+            })
+        })
     }
 
     addDownload(downloadUrl) {
@@ -15,29 +42,34 @@ class Downloader {
             id: this.lastId++
         }
         
-        const downloadItemSubscription = filewall.process(downloadItem).subscribe( ({status, downloadItem}) => {
-            console.log(`item: ${downloadItem.filename} poll: ${status}`)
-            console.log('downloads', this.activeDownloads)
+        const downloadItemSubscription = filewall.process(downloadItem).pipe(
+            tap( x => this.updateStatus(x) )
+        ).subscribe( downloadItem => {
+            const {status, filename, pollStatus} = downloadItem
+
+            console.log(`item: ${filename} poll: ${status}`)
+            // console.log('downloads', this.activeDownloads)
+
+            this.activeDownload$.next(this.activeDownloads.map(
+                ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
+            ))
 
             if (status === 'finished') {
-                this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
-                    browser.downloads.download({
-                        url: downloadItem.pollStatus.links.download,
-                        filename: downloadItem.filename
-                    });
+                this.removeAciveDownload(downloadItem)
+                browser.downloads.download({
+                    url: pollStatus.links.download,
+                    filename: filename
+                });
             }
             if (status === 'failed') {
-                this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
+                this.removeAciveDownload(downloadItem)
             }
         })
         downloadItem = {
             ...downloadItem,
             downloadItemSubscription
         }
-        this.activeDownloads = [
-            ...this.activeDownloads,
-            downloadItem
-        ]
+        this.addActiveDownload(downloadItem)
         // fetch(downloadUrl)
         //     .then( response => response.blob() )
         //     .then( blob => {
@@ -61,8 +93,29 @@ class Downloader {
             // })
 
     }
+    addActiveDownload(downloadItem) {
+        this.activeDownloads = [
+            ...this.activeDownloads,
+            downloadItem
+        ]
+        this.activeDownload$.next(this.activeDownloads.map(
+            ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
+        ))
+    }
+    removeAciveDownload(downloadItem) {
+        this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
+        this.activeDownload$.next(this.activeDownloads.map(
+            ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
+        ))
+    }
     removeDownload(downloadId) {
 
+    }
+    updateStatus({id, status}) {
+        const item = this.activeDownloads.find( i => i.id === id)
+        if (item) {
+            item.status = status
+        }
     }
 }
 export let downloader = new Downloader();

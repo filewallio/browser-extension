@@ -35,11 +35,11 @@ class Filewall {
     // }
     process(downloadItem) {
         return new Observable( obs => {
-            obs.next({status: 'downloading-unsafe', downloadItem})
+            obs.next({status: 'downloading-unsafe', ...downloadItem})
             fetch(downloadItem.downloadUrl)
                 .then( response => response.blob() )
                 .then( blob => downloadItem = {...downloadItem, blob})
-                .then( () => obs.next({status: 'authorizing', downloadItem}))
+                .then( () => obs.next({status: 'authorizing', ...downloadItem}))
                 .then( () => this.authorize() )
                 .then( uploadAuth => downloadItem = { ...downloadItem, uploadAuth } )
                 .catch( error => {
@@ -47,7 +47,7 @@ class Filewall {
                     obs.error();
                     obs.complete()
                 })
-                .then( () => obs.next({status: 'uploading', downloadItem}))
+                .then( () => obs.next({status: 'uploading', ...downloadItem}))
                 .then( () => this.upload(downloadItem) )
                 .catch( error => {
                     //TODO file upload to filewall failed
@@ -65,14 +65,14 @@ class Filewall {
                     ).subscribe( result => {
                         if (result.status === 'finished') {
                             intervalSubscription.unsubscribe()
-                            obs.next({status: 'finished', downloadItem})
+                            obs.next({status: 'finished', ...downloadItem})
                             obs.complete()
                         } else if (result.status === 'failed') {
                             intervalSubscription.unsubscribe()
-                            obs.next({status: 'failed', downloadItem})
+                            obs.next({status: 'failed', ...downloadItem})
                             obs.complete()
                         } else {
-                            obs.next({status: result.status, downloadItem})
+                            obs.next({status: result.status, ...downloadItem})
                         }
                     })
                 })
