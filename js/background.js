@@ -1,8 +1,15 @@
 // import { browser } from 'webextension-polyfill';
 import { storage } from './storage.js';
 import { downloader } from './downloader.js';
-
+import { filewall } from './filewall.js'
 const browser = require('webextension-polyfill');
+
+// filewall.downloadWithProgress({downloadUrl: 'https://www.ferc.gov/docs-filing/elibrary/larg-file.pdf'}).subscribe(
+//     next => console.log('next', next),
+//     err => console.log('err', err),
+//     complete => console.log('complete')
+// )
+
 //
 // ON INSTALL
 //

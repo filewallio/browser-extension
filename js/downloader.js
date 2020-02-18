@@ -1,4 +1,4 @@
-import { filewall } from './filewallModule.js'
+import { filewall } from './filewall.js'
 import { ReplaySubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -43,54 +43,30 @@ class Downloader {
         }
         
         const downloadItemSubscription = filewall.process(downloadItem).pipe(
-            tap( x => this.updateStatus(x) )
-        ).subscribe( downloadItem => {
-            const {status, filename, pollStatus} = downloadItem
-
-            console.log(`item: ${filename} poll: ${status}`)
-            // console.log('downloads', this.activeDownloads)
-
-            this.activeDownload$.next(this.activeDownloads.map(
-                ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
-            ))
-
-            if (status === 'finished') {
-                this.removeAciveDownload(downloadItem)
-                browser.downloads.download({
-                    url: pollStatus.links.download,
-                    filename: filename
-                });
-            }
-            if (status === 'failed') {
-                this.removeAciveDownload(downloadItem)
-            }
-        })
+                // tap( x => this.updateStatus(x) )
+            ).subscribe( downloadItem => {
+                this.updateStatus(downloadItem)
+                const {status, filename, pollStatus} = downloadItem
+                this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
+                
+                if (status === 'finished') {
+                    console.log('downloaded', downloadItem)
+                    this.removeAciveDownload(downloadItem)
+                    browser.downloads.download({
+                        url: pollStatus.links.download,
+                        filename: filename
+                    });
+                }
+            }, error => {
+                if (status === 'failed') {
+                    this.removeAciveDownload(error)
+                }
+            }, () => { })
         downloadItem = {
             ...downloadItem,
             downloadItemSubscription
         }
         this.addActiveDownload(downloadItem)
-        // fetch(downloadUrl)
-        //     .then( response => response.blob() )
-        //     .then( blob => {
-        //         console.log('here is a blob', blob)
-        //         downloadItem = {
-        //             ...downloadItem,
-        //             blob
-        //         }
-        //         // console.log(filewall.processBlob(downloadItem).then(console.log))
-        //         filewall.process(downloadItem).subscribe( ({status, downloadItem}) => {
-        //             console.log(`item: ${downloadItem.uploadAuth && downloadItem.uploadAuth.uid} poll: ${status}`)
-        //         })
-
-            // })
-            // .then( downloadUrl => {
-            //     console.log(downloadUrl, downloadItem)
-            //     browser.downloads.download({
-            //         url: downloadUrl,
-            //         filename: downloadItem.filename
-            //     });
-            // })
 
     }
     addActiveDownload(downloadItem) {
@@ -98,24 +74,31 @@ class Downloader {
             ...this.activeDownloads,
             downloadItem
         ]
-        this.activeDownload$.next(this.activeDownloads.map(
-            ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
-        ))
+        this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
     removeAciveDownload(downloadItem) {
         this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
-        this.activeDownload$.next(this.activeDownloads.map(
-            ({id, downloadUrl, filename, status}) => ({id, downloadUrl, filename, status})
-        ))
+        this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
-    removeDownload(downloadId) {
-
-    }
-    updateStatus({id, status}) {
+    removeDownload(downloadId) { }
+    updateStatus(downloadItem) {
+        const {id, status, progress} = downloadItem
+        if (progress) {
+            const { loaded, total } = progress
+            const percent = loaded && total && Math.round(100 * (loaded / total))
+            console.log(`item: ${id} statue: ${status} progress: ${percent}`)
+        } else {
+            console.log(`item: ${id} statue: ${status}`)
+        }
         const item = this.activeDownloads.find( i => i.id === id)
         if (item) {
             item.status = status
+            item.progress = progress
         }
+    }
+    sanitizeItem(item) {
+        const { downloadItemSubscription, ...rest } = item
+        return rest
     }
 }
 export let downloader = new Downloader();
