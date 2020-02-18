@@ -26,7 +26,32 @@ window.addEventListener('load', function () {
             $('#head').style.display = 'none';
         }
 
-        $('#items').innerHTML = JSON.stringify(activeDownloads, null, 2)
+        // build status
+        const activeDownloadsHtml = activeDownloads.map(buildDownloadItemView).join('')
+
+        $('#items').innerHTML = activeDownloadsHtml
+        // $('#items').innerHTML = JSON.stringify(activeDownloads, null, 2)
+
+    }
+
+    function buildDownloadItemView(downloadItem) {
+        const { downloadUrl, filename, id, status, progress } = downloadItem
+        let percentLoaded = '~'
+        if (progress) {
+            const { loaded, total } = progress
+            percentLoaded = Math.round(100 * (loaded / total))
+
+        }
+
+        return `
+            <div>
+                <span>icon</span>
+                <span>filename: ${filename}</span>
+                <span>status: ${status}</span>
+                <span>progress: ${percentLoaded}</span>
+                <span>close</span>
+            </div>
+        `
 
     }
 
