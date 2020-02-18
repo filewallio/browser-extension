@@ -27,3 +27,7 @@ After this we can talk about more features you would like to include.
 
 Look forward to discussing this with you,
 Timothy
+
+Questions:
+1. What are the error codes returned on when authorization fails for a user?
+2. When exactly will I get the "payment required" error, when trying to upload, on login etc.?
