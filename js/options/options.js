@@ -1,9 +1,12 @@
 import { storage } from '../storage.js';
 import { environment } from '../environment.js'
 
+const $ = document.querySelector.bind(document);
+const $s = document.querySelectorAll.bind(document);
+const username = $('#username')
+const password = $('#password')
 
-const username = document.querySelector('#username')
-const password = document.querySelector('#password')
+showPage('authentication', 'Authentication')
 
 function setInputValue(input, value) {
     console.log('onChange', input.id, value)
@@ -17,19 +20,19 @@ function setInputValue(input, value) {
 // storage.onChange().subscribe()
 storage.onChange().subscribe( appData => {
     Object.keys(appData).forEach( key => {
-        document.querySelectorAll(`div.option input[id='${key}']`)
+        $s(`div.option input[id='${key}']`)
             .forEach( input => setInputValue(input, appData[key]))
     })
     console.log(appData);
     if (appData.apiKey) {
-        document.querySelector('#loginDiv').style.display = 'none'
-        document.querySelectorAll('.usernameSlug').forEach(
+        $('#loginDiv').style.display = 'none'
+        $s('.usernameSlug').forEach(
             slug => slug.innerHTML = appData.username )
-        document.querySelector('#logoutDiv').style.display = ''
+        $('#logoutDiv').style.display = ''
     }
 });
 
-document.querySelectorAll('div.option input[type="checkbox"]').forEach( el => {
+$s('div.option input[type="checkbox"]').forEach( el => {
     storage.appDataAsync().then( store => el.checked = store[el.name] );
     el.addEventListener( 'change', (event) => {
         const { name, checked } = event.target;
@@ -39,15 +42,15 @@ document.querySelectorAll('div.option input[type="checkbox"]').forEach( el => {
     })
 });
 
-document.querySelector('#login').addEventListener('click', () => {
+$('#login').addEventListener('click', () => {
     console.log('login clicked')
     const [usernameVal, passwordVal] = [username.value, password.value]
-    document.querySelector('#password').value = ''
+    $('#password').value = ''
     clearElement(password)
     login(usernameVal, passwordVal).then( () => {
-        document.querySelector('#loginDiv').style.display = 'none'
-        document.querySelectorAll('.usernameSlug').forEach( slug => slug.innerHTML = username )
-        document.querySelector('#logoutDiv').style.display = ''
+        $('#loginDiv').style.display = 'none'
+        writeSlug('usernameSlug', username)
+        $('#logoutDiv').style.display = ''
         // clear login inputs
         clearElement(username)
     }).catch( error => {
@@ -60,17 +63,26 @@ document.querySelector('#login').addEventListener('click', () => {
         clearElement(username)
     })
 })
-document.querySelector('#logout').addEventListener('click', () => {
+$('#logout').addEventListener('click', () => {
     console.log('logout clicked')
-    clearElement(username)
-    clearElement(password)
+    logout()
+})
 
-    storage.setAppData({
-        apiKey: null,
-        username: null
-    }).then()
-    document.querySelector('#loginDiv').style.display = ''
-    document.querySelector('#logoutDiv').style.display = 'none'
+$('#authenticationNavLink').addEventListener('click', e => {
+    e.preventDefault()
+    showPage('authentication', 'Authentication')
+})
+$('#optionsNavLink').addEventListener('click', e => {
+    e.preventDefault()
+    showPage('options', 'Options')
+})
+$('#paymentNavLink').addEventListener('click', e => {
+    e.preventDefault()
+    showPage('payment', 'Payment')
+})
+$('#logoutLink').addEventListener('click', e => {
+    logout()
+    showPage('authentication', 'Authentication')
 })
 
 async function login(username, password) {
@@ -97,13 +109,38 @@ async function login(username, password) {
 
 }
 
+function logout() {
+    clearElement(username)
+    clearElement(password)
+
+    storage.setAppData({
+        apiKey: null,
+        username: null
+    }).then()
+    $('#loginDiv').style.display = ''
+    $('#logoutDiv').style.display = 'none'
+}
+
 function clearElement(el) {
     el.value = ''
     el.parentElement.classList.remove('is-dirty')
 }
 function setError(loginError) {
-    document.querySelectorAll(`.login-error:not(#${loginError})`).forEach( el => el.style.display = 'none');
+    $s(`.login-error:not(#${loginError})`).forEach( el => el.style.display = 'none');
     if (loginError) {
-        document.querySelector(`#${loginError}`).style.display = 'block';
+        $(`#${loginError}`).style.display = 'block';
     }
-} 
+}
+
+function writeSlug(slugId, text) {
+    $s(`.${slugId}`).forEach( slug => slug.textContent = text)
+}
+
+function showPage(pageId, pageTitle) {
+    // hide pages not this page
+    $s(`section:not(.${pageId})`).forEach( page => page.style.display = 'none')
+    // show page this page
+    $(`section.${pageId}`).style.display = 'block'
+    // set page title slug
+    writeSlug('pageTitleSlug', pageTitle)
+}
