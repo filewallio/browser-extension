@@ -113,6 +113,17 @@
               <span class="mdl-switch__label">Enable context menu option for secure download</span>
             </label>
           </div>
+          <div class="option slider">
+              <div class="mdl-textfield mdl-js-textfield box-input">
+                  <input class="mdl-textfield__input" type="number" pattern="[0-9][0-9]*" id="pollTimout" name="pollTimout" min="1" max="100" step="1">
+              </div>
+              <label for="pollTimout">
+                  <div style="width: 40%; display: inline-block">
+                      <input class="mdl-slider mdl-js-slider" type="range" id="pollTimout" name="pollTimout" min="1" max="100" step="1">
+                  </div>
+              </label>
+              <label>The number of times the server is polled before giving up.</label>
+          </div>
         </section>
         <section class="payment mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
           <p>Placeholder page for making payments.</p>

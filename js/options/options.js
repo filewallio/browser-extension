@@ -17,17 +17,14 @@ function setInputValue(input, value) {
         else input.value = value;
     }
 }
-// storage.onChange().subscribe()
 storage.onChange().subscribe( appData => {
     Object.keys(appData).forEach( key => {
         $s(`div.option input[id='${key}']`)
             .forEach( input => setInputValue(input, appData[key]))
     })
-    console.log(appData);
     if (appData.apiKey) {
         $('#loginDiv').style.display = 'none'
-        $s('.usernameSlug').forEach(
-            slug => slug.innerHTML = appData.username )
+        writeSlug('usernameSlug', appData.username)
         $('#logoutDiv').style.display = ''
     }
 });
@@ -38,6 +35,24 @@ $s('div.option input[type="checkbox"]').forEach( el => {
         const { name, checked } = event.target;
         storage.setAppData({
             [name]: checked
+        })
+    })
+});
+$s('div.option input[type="number"]').forEach( el => {
+    storage.appDataAsync().then( store => el.value = store[el.name] );
+    el.addEventListener( 'change', (event) => {
+        const { name, value } = event.target;
+        storage.setAppData({
+            [name]: +value
+        })
+    })
+});
+$s('div.option input[type="range"]').forEach( el => {
+    storage.appDataAsync().then( store => el.value = store[el.name] );
+    el.addEventListener( 'input', (event) => {
+        const { name, value } = event.target;
+        storage.setAppData({
+            [name]: +value
         })
     })
 });

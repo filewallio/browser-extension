@@ -132,3 +132,12 @@
 .social-btn__twitter {
     background-image: url('https://www.gstatic.com/images/icons/material/system/2x/post_twitter_white_24dp.png')
 }
+
+.slider .box-input {
+  width: 50px;
+  padding: 0px;
+}
+
+div.option {
+  margin-bottom: 20px;
+}

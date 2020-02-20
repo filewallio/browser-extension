@@ -19,6 +19,7 @@ class Storage {
             'pollTimout': 30
         }
         this.initDataItems();
+        this.onChange().subscribe( store => this.appData = store )
     }
 
     appDataAsync() {
@@ -38,7 +39,7 @@ class Storage {
 
     getAppData() {
         const dataItems = Object.keys(this.appData);
-        return browser.storage.sync.get(dataItems).then( appData => this.appData = appData )
+        return browser.storage.sync.get(dataItems)
     }
 
     initDataItems() {
