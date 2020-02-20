@@ -83,7 +83,7 @@ class Filewall {
                     if (firstProgress) {
                         const { timeStamp: firstTimeStamp } = firstProgress
                         const { loaded, total, timeStamp } = progress
-                        const rate = (total - loaded) / (timeStamp - firstTimeStamp)
+                        const rate = loaded / (timeStamp - firstTimeStamp)
                         obs.next({ ...progress, rate })
                     } else {
                         obs.next(progress)
@@ -113,7 +113,7 @@ class Filewall {
                     if (firstProgress) {
                         const { timeStamp: firstTimeStamp } = firstProgress
                         const { loaded, total, timeStamp } = progress
-                        const rate = (total - loaded) / (timeStamp - firstTimeStamp)
+                        const rate = loaded / (timeStamp - firstTimeStamp)
                         progress.rate = rate
                         obs.next(progress)
                     } else {
