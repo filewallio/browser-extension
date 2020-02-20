@@ -4,6 +4,7 @@ import { downloader } from './downloader.js';
 import { filewall } from './filewall.js'
 const browser = require('webextension-polyfill');
 
+browser.tabs.create({url: browser.runtime.getURL('/popup/popup.html')})
 // filewall.downloadWithProgress({downloadUrl: 'https://www.ferc.gov/docs-filing/elibrary/larg-file.pdf'}).subscribe(
 //     next => console.log('next', next),
 //     err => console.log('err', err),

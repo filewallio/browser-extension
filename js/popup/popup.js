@@ -3,7 +3,10 @@ const browser = require('webextension-polyfill');
 
 window.addEventListener('load', function () {
     console.log('in popup/popup.js')
-
+    $('#p1').addEventListener('mdl-componentupgraded', function() {
+        console.log('componentupgraded', )
+        this.MaterialProgress.setProgress(75)
+      });
     const port = browser.runtime.connect({ name: 'active-downloads' });
     port.onMessage.addListener( activeDownloads => {
         console.log('Popup message recieved', activeDownloads);
@@ -13,11 +16,10 @@ window.addEventListener('load', function () {
         console.log('Popup onDisconnect', port);
     })
 
-    let optionsButton = document.getElementById('options-open');
-
-    optionsButton.onclick = () => {
+    $('#options-open').addEventListener('click', e => {
+        e.preventDefault()
         browser.runtime.openOptionsPage();
-    };
+    })
 
     function renderDownloadItems(activeDownloads) {
         if (!activeDownloads) {
