@@ -1,6 +1,5 @@
 import { filewall } from './filewall.js'
 import { BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 const browser = require('webextension-polyfill');
 
@@ -84,9 +83,9 @@ class Downloader {
     updateStatus(downloadItem) {
         const {id, status, progress} = downloadItem
         if (progress) {
-            const { loaded, total } = progress
+            const { loaded, total, rate } = progress
             const percent = loaded && total && Math.round(100 * (loaded / total))
-            console.log(`item: ${id} statue: ${status} progress: ${percent}`)
+            console.log(`item: ${id} statue: ${status} progress: ${percent} rate: ${rate}`)
         } else {
             console.log(`item: ${id} statue: ${status}`)
         }

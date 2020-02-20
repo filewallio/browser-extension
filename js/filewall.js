@@ -1,7 +1,7 @@
 import { storage } from './storage.js'
 import { environment } from './environment.js'
 import { Subject, interval, Observable } from 'rxjs'
-import { tap, map, timeInterval, mergeMap, filter, take } from 'rxjs/operators'
+import { tap, mergeMap, filter, take } from 'rxjs/operators'
 
 const axios = require('axios').default
 class Filewall {
@@ -74,12 +74,22 @@ class Filewall {
     }
     uploadWithProgress(downloadItem) {
         return new Observable( obs => {
-            console.log('upload with progress')
+            let firstProgress
             axios({
                 method: 'POST',
                 baseURL: `${downloadItem.uploadAuth.links.upload}`,
                 data: downloadItem.blob,
-                onUploadProgress: progress => obs.next(progress),
+                onUploadProgress: progress => {
+                    if (firstProgress) {
+                        const { timeStamp: firstTimeStamp } = firstProgress
+                        const { loaded, total, timeStamp } = progress
+                        const rate = (total - loaded) / (timeStamp - firstTimeStamp)
+                        obs.next({ ...progress, rate })
+                    } else {
+                        obs.next(progress)
+                        firstProgress = progress
+                    }
+                },
                 headers: {
                     filename: downloadItem.filename,
                     'content-type': downloadItem.blob.type
@@ -94,12 +104,23 @@ class Filewall {
     }
     downloadWithProgress(downloadItem) {
         return new Observable( obs => {
-            console.log('download with progress')
+            let firstProgress
             return axios({
                 method: 'GET',
                 responseType: 'arraybuffer',
                 baseURL: `${downloadItem.downloadUrl}`,
-                onDownloadProgress: progress => obs.next(progress)
+                onDownloadProgress: progress => {
+                    if (firstProgress) {
+                        const { timeStamp: firstTimeStamp } = firstProgress
+                        const { loaded, total, timeStamp } = progress
+                        const rate = (total - loaded) / (timeStamp - firstTimeStamp)
+                        progress.rate = rate
+                        obs.next(progress)
+                    } else {
+                        obs.next(progress)
+                        firstProgress = progress
+                    }
+                }
             })
             .then( response => new Blob([response.data], {type: response.headers['content-type']}))
             .then( data => {
@@ -119,14 +140,14 @@ class Filewall {
             .then( r => r.json() )
     }
     buildProgress(progressEvent, downloadItem) {
-        console.log('build progress')
-        const { loaded, total, timeStamp } = progressEvent
+        const { loaded, total, timeStamp, rate } = progressEvent
         return {
             ...downloadItem,
             progress: {
                 loaded,
                 total,
-                timeStamp
+                timeStamp,
+                rate
             }
         }
     }

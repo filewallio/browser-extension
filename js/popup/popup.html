@@ -20,21 +20,9 @@
 
 <body>
 
-  <div class="flex-column extension-popup">
-    <div class="flex__fill flex-column">
+  <div class="flex-column flex-column__space-between extension-popup">
+    <div class="flex__fill flex-column flex-column__flex-start" id="items">
       <!-- downloadItems -->
-      <div class="download-item-grid download-item">
-        <div class="download-item__icon">
-          <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
-        </div>
-        <div class="download-item__filename center">filename</div>
-        <div class="download-item__progress center">
-          <div id="p1" class="mdl-progress mdl-js-progress"></div>
-        </div>
-        <div class="download-item__close">
-          <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
-        </div>
-      </div>
     </div>
     <div class="flex-row popup__footer">
       <!-- footer -->
@@ -47,18 +35,7 @@
         </a>
       </div>
     </div>
-
   </div>
-
-  <!-- <div id="head">
-    <span id="empty">There are no active downloads.</span>
-  </div> -->
-  <!-- <div class="bottom mybtn" id="older">
-    <a target="_blanc" href="https://filewall.io">Show on filewall.io</a>
-    <a href="#" id="options-open" title="Options" class="options_menu">
-      <i class="fa fa-bars fa-lg options_icon"></i>
-    </a>
-  </div> -->
 
   <script src="./popup.js" async></script>
   <script src="../libs/material.min.js"></script>

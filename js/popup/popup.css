@@ -12,8 +12,13 @@
 .flex-column {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: stretch;
+}
+.flex-column__space-between {
+    justify-content: space-between;
+}
+.flex-column__flex-start {
+    justify-content: flex-start;
 }
 .flex__fill {
     flex-grow: 1;
