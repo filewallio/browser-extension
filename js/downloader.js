@@ -15,13 +15,10 @@ class Downloader {
             this.port = port
 
             const subscription = this.activeDownload$.subscribe( activeDownloads => {
-                console.log('Downloader activeDownloads', activeDownloads)
                 port.postMessage(activeDownloads)
             })
 
             port.onMessage.addListener((msg) => {
-                console.log('Downloader onMessage', msg);
-                port.postMessage('message to Popup.js');
             })
 
             port.onDisconnect.addListener( port => {
@@ -57,6 +54,7 @@ class Downloader {
                     });
                 }
             }, error => {
+                console.log('downloadItemSubscription error', error)
                 if (status === 'failed') {
                     this.removeAciveDownload(error)
                 }
@@ -85,7 +83,7 @@ class Downloader {
         if (progress) {
             const { loaded, total, rate } = progress
             const percent = loaded && total && Math.round(100 * (loaded / total))
-            console.log(`item: ${id} statue: ${status} progress: ${percent} rate: ${rate}`)
+            // console.log(`item: ${id} statue: ${status} progress: ${percent} rate: ${rate}`)
         } else {
             console.log(`item: ${id} statue: ${status}`)
         }
