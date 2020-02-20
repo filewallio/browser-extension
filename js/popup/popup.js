@@ -6,11 +6,9 @@ window.addEventListener('load', function () {
     console.log('in popup/popup.js')
     const port = browser.runtime.connect({ name: 'active-downloads' });
     port.onMessage.addListener( activeDownloads => {
-        console.log('Popup message recieved', activeDownloads);
         renderDownloadItems(activeDownloads)
     });
     port.onDisconnect.addListener( port => {
-        console.log('Popup onDisconnect', port);
     })
 
     $('#options-open').addEventListener('click', e => {

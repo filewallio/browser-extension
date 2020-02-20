@@ -31,6 +31,7 @@ class Filewall {
                                 subject.next( this.buildProgress(next, downloadItem) )
                             } else {
                                 let lastStatus = '';
+                                console.log('start polling', storage.appData.pollTimout)
                                 const intervalSubscription = interval(storage.appData.pollInterval).pipe(
                                     take(storage.appData.pollTimout),
                                     mergeMap( () => this.statusCheck(downloadItem) ),
@@ -68,9 +69,6 @@ class Filewall {
             }
         })
             .then( r => r.json() )
-            .catch( response => {
-                // TODO: catch the errors: not authorized, some tech error, etc.
-            })
     }
     uploadWithProgress(downloadItem) {
         return new Observable( obs => {
@@ -84,7 +82,8 @@ class Filewall {
                         const { timeStamp: firstTimeStamp } = firstProgress
                         const { loaded, total, timeStamp } = progress
                         const rate = loaded / (timeStamp - firstTimeStamp)
-                        obs.next({ ...progress, rate })
+                        progress.rate = rate
+                        obs.next(progress)
                     } else {
                         obs.next(progress)
                         firstProgress = progress
