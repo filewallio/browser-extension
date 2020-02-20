@@ -1,5 +1,5 @@
 import { filewall } from './filewall.js'
-import { ReplaySubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 const browser = require('webextension-polyfill');
@@ -7,7 +7,7 @@ const browser = require('webextension-polyfill');
 class Downloader {
     constructor() {
         this.activeDownloads = [];
-        this.activeDownload$ = new ReplaySubject()
+        this.activeDownload$ = new BehaviorSubject()
         // setInterval(_ => this.activeDownload$.next(['one', 'two', 'three']), 2000)
         this.lastId = 0;
         this.port
