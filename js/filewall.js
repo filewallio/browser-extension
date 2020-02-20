@@ -19,8 +19,15 @@ class Filewall {
                 downloadItem = {...downloadItem, status: 'authorizing'}
                 subject.next({...downloadItem})
                 this.authorize()
+                    .then( response => {
+                        if (response.error) {
+                            subject.error(response)
+                            subject.complete()
+                        } else {
+                            return response
+                        }
+                    })
                     .then( uploadAuth => downloadItem = { ...downloadItem, uploadAuth } )
-                    .catch( error => subject.error(error) ) // error handling
                     .then( () => {
                         downloadItem = {...downloadItem, status: 'uploading'}
                         subject.next({...downloadItem})

@@ -7,10 +7,8 @@ class Downloader {
     constructor() {
         this.activeDownloads = [];
         this.activeDownload$ = new BehaviorSubject()
-        // setInterval(_ => this.activeDownload$.next(['one', 'two', 'three']), 2000)
         this.lastId = 0;
         this.port
-        console.log('Downloader is init')
         browser.runtime.onConnect.addListener( port => {
             this.port = port
 
@@ -22,7 +20,6 @@ class Downloader {
             })
 
             port.onDisconnect.addListener( port => {
-                console.log('Downloader onDisconnect', port);
                 subscription.unsubscribe();
             })
         })
@@ -53,12 +50,20 @@ class Downloader {
                         filename: filename
                     });
                 }
-            }, error => {
-                console.log('downloadItemSubscription error', error)
-                if (status === 'failed') {
-                    this.removeAciveDownload(error)
+            }, response => {
+                console.log('downloadItemSubscription error', response)
+                const { error } = response
+                if (error === 'too_many_requests') {
+                    // tell user to slow down
+
+                } else if (error === 'auth_failed') {
+                    // show error to user
+                    // sent user to login screen
+                } else if (error === 'payment_required') {
+                    // send user to payment page
                 }
-            }, () => { })
+                this.removeAciveDownload(downloadItem)
+            })
         downloadItem = {
             ...downloadItem,
             downloadItemSubscription
