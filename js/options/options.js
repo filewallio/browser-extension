@@ -80,6 +80,10 @@ $('#paymentNavLink').addEventListener('click', e => {
     e.preventDefault()
     showPage('payment', 'Payment')
 })
+$('#helpNavLink').addEventListener('click', e => {
+    e.preventDefault()
+    showPage('help', 'Help')
+})
 $('#logoutLink').addEventListener('click', e => {
     logout()
     showPage('authentication', 'Authentication')
