@@ -31,3 +31,4 @@ Timothy
 Questions:
 1. What are the error codes returned on when authorization fails for a user?
 2. When exactly will I get the "payment required" error, when trying to upload, on login etc.?
+3. Is there an api call to cancel the processing of a document?
