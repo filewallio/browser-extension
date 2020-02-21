@@ -4,19 +4,28 @@ const browser = require('webextension-polyfill');
 
 window.addEventListener('load', function () {
     console.log('in popup/popup.js')
-    const port = browser.runtime.connect({ name: 'active-downloads' });
-    port.onMessage.addListener( activeDownloads => {
-        renderDownloadItems(activeDownloads)
-    });
-    port.onDisconnect.addListener( port => {
+
+    browser.runtime.connect({ name: 'active-downloads' })
+        .onMessage.addListener( activeDownloads => {
+            console.log('active-downloads', activeDownloads)
+            renderDownloadItems(activeDownloads)
+        })
+    const messagePort = browser.runtime.connect({ name: 'messages' })
+    messagePort.onMessage.addListener( message => {
+        console.log('message', message)
+        showMessage(message)
     })
 
     $('#options-open').addEventListener('click', e => {
         e.preventDefault()
         browser.runtime.openOptionsPage();
     })
+    $('#clear-message').addEventListener('click', e => {
+        hideMessage()
+    })
 
     function renderDownloadItems(activeDownloads) {
+        if (!activeDownloads) return
         // build status
         const activeDownloadsHtml = activeDownloads.map(buildDownloadItemView).join('')
         
@@ -67,6 +76,43 @@ window.addEventListener('load', function () {
         $s('.mdl-progress').forEach( el => {
             componentHandler.upgradeElement(el)
         } )
+    }
+
+    function showMessage(messageCode) {
+        const messages = {
+            'too_many_requests': {
+                header: 'Error',
+                message: 'Slow down, you have initiated too many downloads.'
+            },
+            'auth_failed': {
+                header: 'Error',
+                message: 'Authorization failed please login and try again.'
+            },
+            'payment_required': {
+                header: 'Error',
+                message: 'Payment required to contine.'
+            },
+            'failed': {
+                header: 'Failure',
+                message: 'We failed to process your request. Please try again later.'
+            }
+        }
+        const { header, message } = messages[messageCode]
+        writeSlug('messageHeaderSlug', header)
+        writeSlug('messageSlug', message)
+        $('#items').style.display = 'none'
+        $('#message').style.display = 'block'
+
+    }
+    function hideMessage() {
+        $('#items').style.display = 'block'
+        $('#message').style.display = 'none'
+        writeSlug('messageHeaderSlug', '')
+        writeSlug('messageSlug', '')
+        messagePort.postMessage('clear')
+    }
+    function writeSlug(slugId, text) {
+        $s(`.${slugId}`).forEach( slug => slug.textContent = text)
     }
 
 });

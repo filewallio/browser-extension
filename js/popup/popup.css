@@ -4,7 +4,7 @@
     -webkit-box-sizing: border-box;
 }
 .extension-popup {
-    min-width: 300px;
+    min-width: 400px;
     min-height: 300px;
     max-width: 400px;
     max-height: 500px;
@@ -77,4 +77,11 @@
 
 .mdl-progress {
     width: 100%;
+}
+div.message {
+    padding: 10px;
+}
+.message__card.mdl-card {
+    width: 100%;
+    /* height: 100%; */
 }

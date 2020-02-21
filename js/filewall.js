@@ -38,7 +38,6 @@ class Filewall {
                                 subject.next( this.buildProgress(next, downloadItem) )
                             } else {
                                 let lastStatus = '';
-                                console.log('start polling', storage.appData.pollTimout)
                                 const intervalSubscription = interval(storage.appData.pollInterval).pipe(
                                     take(storage.appData.pollTimout),
                                     mergeMap( () => this.statusCheck(downloadItem) ),
@@ -52,7 +51,7 @@ class Filewall {
                                         subject.complete()
                                     } else if (status === 'failed') {
                                         intervalSubscription.unsubscribe()
-                                        subject.next({...downloadItem, status: 'failed'})
+                                        subject.error({...downloadItem, status: 'failed'})
                                         subject.complete()
                                     } else {
                                         subject.next({...downloadItem, status})

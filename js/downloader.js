@@ -7,21 +7,40 @@ class Downloader {
     constructor() {
         this.activeDownloads = [];
         this.activeDownload$ = new BehaviorSubject()
+        // this.messages = []
+        this.message$ = new BehaviorSubject()
         this.lastId = 0;
-        this.port
         browser.runtime.onConnect.addListener( port => {
-            this.port = port
+            if (port.name === 'active-downloads') {
+                const subscription = this.activeDownload$.subscribe( activeDownloads => {
+                    if (!activeDownloads) return
+                    port.postMessage(activeDownloads)
+                })
+    
+                port.onDisconnect.addListener( port => {
+                    subscription.unsubscribe();
+                })
+            } else if (port.name === 'messages') {
+                const subscription = this.message$.subscribe( message => {
+                    if (!message) return
+                    port.postMessage(message)
+                    browser.browserAction.setBadgeText({text: '!'})
+                })
+    
+                port.onDisconnect.addListener( port => {
+                    subscription.unsubscribe();
+                })
+                port.onMessage.addListener( message => {
+                    console.log('message recieced to downloader')
+                    if (message === 'clear') {
+                        this.message$.next('')
+                    }
+                    browser.browserAction.setBadgeText({text: ''})
+                    // const [ message, ...rest ] = this.messages
+                    // this.messages = rest
+                })
+            }
 
-            const subscription = this.activeDownload$.subscribe( activeDownloads => {
-                port.postMessage(activeDownloads)
-            })
-
-            port.onMessage.addListener((msg) => {
-            })
-
-            port.onDisconnect.addListener( port => {
-                subscription.unsubscribe();
-            })
         })
     }
 
@@ -52,15 +71,21 @@ class Downloader {
                 }
             }, response => {
                 console.log('downloadItemSubscription error', response)
-                const { error } = response
+                const { error, status } = response
                 if (error === 'too_many_requests') {
                     // tell user to slow down
+                    this.message$.next('too_many_requests')
 
                 } else if (error === 'auth_failed') {
                     // show error to user
+                    this.message$.next('auth_failed')
                     // sent user to login screen
                 } else if (error === 'payment_required') {
                     // send user to payment page
+                    this.message$.next('payment_required')
+                } else if (status === 'failed') {
+                    // tell user it failed and to try again
+                    this.message$.next('failed')
                 }
                 this.removeAciveDownload(downloadItem)
             })
