@@ -1,3 +1,4 @@
+const browser = require('webextension-polyfill');
 
 let template_str = `<div class="item"  id="item">
 <div class="wrapper_top">

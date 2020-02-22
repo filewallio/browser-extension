@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+const browser = require('webextension-polyfill');
 
 class Storage {
     constructor() {

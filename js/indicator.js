@@ -1,4 +1,6 @@
 
+const browser = require('webextension-polyfill');
+
 browser.runtime.onMessage.addListener(function (message) {
 	console.log('msg received:'+message);
 	showStartAnim(message);

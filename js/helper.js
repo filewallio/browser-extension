@@ -1,3 +1,4 @@
+const browser = require('webextension-polyfill');
 
 
 this.active_downloads = [];
