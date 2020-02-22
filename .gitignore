@@ -2,3 +2,4 @@ node_modules
 addon
 profile.firefox
 profile.chrome
+web-ext-artifacts
