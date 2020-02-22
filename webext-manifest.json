@@ -35,10 +35,6 @@
         "open_in_tab": true,
         "page": "options/options.html"
     },
-    "content_scripts": [ {
-        "js": [ "indicator.js" ],
-        "matches": [ "<all_urls>"]
-     }],
     "icons": {
         "16" : "images/icon-16x16.png",
         "32" : "images/icon-32x32.png",
