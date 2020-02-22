@@ -23,6 +23,7 @@ class Filewall {
                         if (response.error) {
                             subject.error(response)
                             subject.complete()
+                            return Promise().reject(response)
                         } else {
                             return response
                         }
