@@ -64,7 +64,7 @@ $('#login').addEventListener('click', () => {
     clearElement(password)
     login(usernameVal, passwordVal).then( () => {
         $('#loginDiv').style.display = 'none'
-        writeSlug('usernameSlug', username)
+        writeSlug('usernameSlug', usernameVal)
         $('#logoutDiv').style.display = ''
         // clear login inputs
         clearElement(username)
