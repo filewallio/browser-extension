@@ -8,27 +8,44 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 // Addon directory
 const dest_dir = path.resolve(__dirname, 'addon');
 
+function buildManifest(env) {
 
-// Make manifest.json out of package.json information
-const {
-    name,
-    version,
-    description,
-    author
-} = require('./package.json');
+  // Make manifest.json out of package.json information
+  const {
+      name,
+      version,
+      description,
+      author
+  } = require('./package.json');
 
-let {$schema, ...manifest} = require('./webext-manifest.json');
+  let {
+    $schema,
+    browser_specific_settings,
+    ...manifest
+  } = require('./webext-manifest.json');
+  
+  manifest = {
+      ...manifest,
+      name,
+      version,
+      description,
+      author
+  };
 
-manifest = {
-    ...manifest,
-    name,
-    version,
-    description,
-    author
-};
+  const { browser } = env
+  if (browser === 'firefox') {
+    return {
+      ...manifest,
+      browser_specific_settings
+    }
+  } else if (browser === 'chrome') {
+    return manifest
+  }
+
+}
 
 
-module.exports = {
+module.exports = env => ({
   target: 'web',
   node: false,
   mode: 'development',
@@ -46,12 +63,7 @@ module.exports = {
   },
 
   plugins: [
-    // new webpack.DefinePlugin({
-    //   'process.env': {
-    //     NODE_ENV: '"production"'
-    //   }
-    // }),
-    new GenerateJsonPlugin('manifest.json', manifest, null, 2),
+    new GenerateJsonPlugin('manifest.json', buildManifest(env), null, 2),
     new CopyWebpackPlugin([
       { from: 'images/*', to: 'images', flatten: true },
       { from: 'fonts/*', to: 'fonts', flatten: true },
@@ -64,4 +76,4 @@ module.exports = {
       { from: 'js/options/*', to: 'options', flatten: true }
     ], {})
   ]
-};
+});

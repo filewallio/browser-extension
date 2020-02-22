@@ -7,7 +7,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "web-ext run --config=web-ext-config.js",
-    "webpack": "npx webpack --watch --progress"
+    "webpack": "npx webpack --watch --progress",
+    "webpack-build": "npx webpack --config webpack.config.js",
+    "webpack-build:chrome": "npx webpack --env.browser=chrome",
+    "webpack-build:firefox": "npx webpack --env.browser=firefox",
+    "build": "npm run webpack-build:chrome && web-ext build",
+    "postbuild": "npm run archive-source",
+    "archive-source": "cross-var git archive -o web-ext-artifacts/$npm_package_name-$npm_package_version-source.zip HEAD"
   },
   "repository": {
     "type": "git",
@@ -23,6 +29,7 @@
     "npm": ">=5.2.0"
   },
   "devDependencies": {
+    "axios": "^0.19.2",
     "copy-webpack-plugin": "^5.1.1",
     "eslint": "^6.8.0",
     "generate-json-webpack-plugin": "^0.3.1",
@@ -30,6 +37,7 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
+    "cross-var": "^1.1.0",
     "rxjs": "^6.5.4",
     "webextension-polyfill": "^0.6.0"
   }
