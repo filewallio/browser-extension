@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+.extension-popup {
+    min-width: 400px;
+    min-height: 300px;
+    max-width: 400px;
+    max-height: 500px;
+}
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.flex-column__space-between {
+    justify-content: space-between;
+}
+.flex-column__flex-start {
+    justify-content: flex-start;
+}
+.flex__fill {
+    flex-grow: 1;
+}
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+}
+.flex-row > * {
+    align-self: center;
+}
+.center {
+    text-align: center;
+}
+
+.hamburger-container {
+    padding: 10px;
+}
+
+/* download item styles */
+:root {
+    --size: 38px;
+}
+.download-item-grid {
+    display: grid;
+    grid-template-columns: var(--size) auto var(--size);
+    grid-template-rows: 75% 25%;
+    grid-template-areas: 
+        "icon filename close"
+        "icon progress close";
+}
+.download-item {
+    max-height: var(--size);
+}
+.download-item__icon {
+    grid-area: icon;
+    height: var(--size);
+    width: var(--size);
+    padding: 7px 5px;
+}
+.download-item__filename {
+    grid-area: filename;
+}
+.download-item__progress {
+    grid-area: progress;
+    width: 100%;
+}
+.download-item__close {
+    grid-area: close;
+    height: var(--size);
+    width: var(--size);
+    padding: 7px 5px;
+}
+
+.mdl-progress {
+    width: 100%;
+}
+div.message {
+    padding: 10px;
+}
+.message__card.mdl-card {
+    width: 100%;
+    /* height: 100%; */
+}

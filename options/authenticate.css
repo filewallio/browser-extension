@@ -1,0 +1,22 @@
+div.option {
+    margin-bottom: 20px;
+}
+
+section {
+    margin: 0 auto;
+    border: 1px;
+    border-style: solid;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+section .title {
+    margin-top: 0px;
+}
+
+.slider .box-input {
+    width: 50px;
+    padding: 0px;
+}
