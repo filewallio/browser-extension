@@ -271,7 +271,13 @@ class Downloader {
             filename,
             id: this.lastId++
         }
-        
+
+        chrome.tabs.query({active: true}, function (tabs) {
+            tabs.forEach(function (tab) {
+                chrome.tabs.sendMessage(tab.id, "start");
+            })
+        });
+
         const downloadItemSubscription = _filewall_js__WEBPACK_IMPORTED_MODULE_0__["filewall"].process(downloadItem).pipe(
                 // tap( x => this.updateStatus(x) )
             ).subscribe( downloadItem => {
@@ -280,6 +286,12 @@ class Downloader {
                 this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
                 
                 if (status === 'finished') {
+                    chrome.tabs.query({active: true}, function (tabs) {
+                        tabs.forEach(function (tab) {
+                            chrome.tabs.sendMessage(tab.id, "success");
+                        })
+                    });
+
                     console.log('downloaded', downloadItem)
                     this.removeAciveDownload(downloadItem)
                     browser.downloads.download({

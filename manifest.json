@@ -18,6 +18,10 @@
       "./background/background.js"
     ]
   },
+  "content_scripts": [{
+    "js": ["popup/indicator.js"],
+    "matches": ["<all_urls>"]
+  }],
   "browser_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -39,7 +43,8 @@
   },
   "web_accessible_resources": [
     "images/animate_start.png",
-    "images/animate_success.png"
+    "images/animate_success.png",
+    "images/icon-128x128.png"
   ],
   "description": "Filewall.io Chrome Extension",
   "author": "filewallio"
