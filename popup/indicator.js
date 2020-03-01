@@ -38,7 +38,7 @@ function showStartAnim(msg){
 			img.style.width = "20px";
 			img.style.height = "20px";
 		} else if (msg=='success'){
-			img.style.left = '30%';
+			img.style.left = '5%';
 			img.style.top  = '99%';
 			img.style.width = "128px";
 			img.style.height = "128px";
