@@ -319,10 +319,20 @@ class Downloader {
             ...this.activeDownloads,
             downloadItem
         ]
+        if(this.activeDownloads.length > 0){
+            chrome.browserAction.setBadgeText({ text: "" + this.activeDownloads.length });
+        }else{
+            chrome.browserAction.setBadgeText({ text: ""});
+        }
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
     removeAciveDownload(downloadItem) {
-        this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
+        this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id );
+        if(this.activeDownloads.length > 0){
+            chrome.browserAction.setBadgeText({ text: "" + this.activeDownloads.length });
+        }else{
+            chrome.browserAction.setBadgeText({ text: ""});
+        }
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
     removeDownload(downloadId) { }
