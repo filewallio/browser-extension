@@ -53,7 +53,6 @@ class Downloader {
             }
         })
         storage.onChange().subscribe( store => {
-            console.log('find not logged in')
             const { apiKey, username } = store
             if (!apiKey) {
                 browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
