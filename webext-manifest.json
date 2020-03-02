@@ -23,7 +23,7 @@
         "scripts": ["./background/background.js"]
     },
     "content_scripts": [{
-        "js": ["popup/indicator.js"],
+        "js": ["indicator.js"],
         "matches": ["<all_urls>"]
     }],
     "browser_action": {

@@ -69,7 +69,7 @@ module.exports = env => ({
       { from: 'fonts/*', to: 'fonts', flatten: true },
       { from: 'css/*', to: 'css', flatten: true },
       { from: 'js/libs/*', to: 'libs', flatten: true },
-      // { from: 'js/indicator.js', to: 'indicator.js', flatten: true },
+      { from: 'js/indicator.js', to: 'indicator.js', flatten: true },
       { from: '_locales', to: '_locales', flatten: false },
       { from: 'js/popup/popup.html', to: 'popup', flatten: true },
       { from: 'js/popup/popup.css', to: 'popup', flatten: true },
