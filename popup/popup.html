@@ -20,10 +20,35 @@
 
 <body>
 
-  <div class="flex-column flex-column__space-between extension-popup">
+  <div class="flex-column flex-column__space-between extension-popup" >
+
+    <div class="message flex__fill" id="login" style="display:none;">
+      <form>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Email address</label>
+          <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">Password</label>
+          <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+        </div>
+
+        <div class="form-check">
+          <button type="submit" class="btn btn-green" style="margin-right: 5px;float: left;">Login</button>
+          <div class="form-check mb-2 mr-sm-2" style="float: left; margin-left: 5px; margin-top: 5px;">
+            <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+            <label class="form-check-label" for="inlineFormCheck">
+              Remember me
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+
     <div class="flex__fill flex-column flex-column__flex-start" id="items">
       <!-- downloadItems -->
     </div>
+
     <div class="message flex__fill" id="message" style="display: none;">
       <!-- message -->
       <div class="message__card mdl-card mdl-shadow--4dp">
@@ -41,6 +66,7 @@
       </div>
 
     </div>
+
     <div class="flex-row popup__footer">
       <!-- footer -->
       <div class="center flex__fill">
@@ -52,6 +78,7 @@
         </a>
       </div>
     </div>
+
   </div>
 
   <script src="./popup.js" async></script>

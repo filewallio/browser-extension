@@ -212,7 +212,6 @@ window.addEventListener('load', function () {
 
 });
 
-
 /***/ }),
 
 /***/ "./node_modules/webextension-polyfill/dist/browser-polyfill.js":

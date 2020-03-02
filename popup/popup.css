@@ -85,3 +85,14 @@ div.message {
     width: 100%;
     /* height: 100%; */
 }
+
+.btn-green {
+    color: #fff;
+    background-color: #9dc800;
+    border-color: #9dc800;
+}
+.btn-green:hover {
+    color: #fff;
+    background-color: #6f8d00;
+    border-color: #6f8d00;
+}
