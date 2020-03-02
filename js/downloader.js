@@ -62,7 +62,13 @@ class Downloader {
             filename,
             id: this.lastId++
         }
-        
+
+        chrome.tabs.query({active: true}, function (tabs) {
+            tabs.forEach(function (tab) {
+                chrome.tabs.sendMessage(tab.id, "start");
+            })
+        });
+
         const downloadItemSubscription = filewall.process(downloadItem).pipe(
                 // tap( x => this.updateStatus(x) )
             ).subscribe( downloadItem => {
@@ -72,6 +78,12 @@ class Downloader {
                 
                 if (status === 'finished') {
                     console.log('downloaded', downloadItem)
+                    chrome.tabs.query({active: true}, function (tabs) {
+                        tabs.forEach(function (tab) {
+                            chrome.tabs.sendMessage(tab.id, "success");
+                        })
+                    });
+
                     this.removeAciveDownload(downloadItem)
                     browser.downloads.download({
                         url: pollStatus.links.download,
