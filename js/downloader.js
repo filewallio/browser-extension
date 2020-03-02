@@ -6,7 +6,7 @@ const browser = require('webextension-polyfill');
 class Downloader {
     constructor() {
         this.activeDownloads = [];
-        this.activeDownload$ = new BehaviorSubject()
+        this.activeDownload$ = new BehaviorSubject([])
         // this.messages = []
         this.message$ = new BehaviorSubject()
         this.lastId = 0;
@@ -41,6 +41,15 @@ class Downloader {
                 })
             }
 
+        })
+        this.activeDownload$.subscribe( next => {
+            const { length } = next
+            if (length === 0) {
+                browser.browserAction.setBadgeText({text: ''})
+            } else {
+                browser.browserAction.setBadgeBackgroundColor({color:'red'})
+                browser.browserAction.setBadgeText({text: `${length}`})
+            }
         })
     }
 
