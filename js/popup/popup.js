@@ -20,7 +20,6 @@ window.addEventListener('load', function () {
     })
     storage.onChange().subscribe( store => {
         const { apiKey, username } = store
-        console.log('find not logged in', store)
         if (!apiKey) {
             showAuthentication()
         }
