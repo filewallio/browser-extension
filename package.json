@@ -5,9 +5,8 @@
   "author": "filewallio",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "web-ext run --config=web-ext-config.js",
-    "webpack": "npx webpack --watch --progress",
+    "watch": "npx webpack --env.browser=firefox",
     "webpack-build": "npx webpack --config webpack.config.js",
     "webpack-build:chrome": "npx webpack --env.browser=chrome",
     "webpack-build:firefox": "npx webpack --env.browser=firefox",
@@ -32,7 +31,6 @@
     "npm": ">=5.2.0"
   },
   "devDependencies": {
-    "axios": "^0.19.2",
     "copy-webpack-plugin": "^5.1.1",
     "eslint": "^6.8.0",
     "generate-json-webpack-plugin": "^0.3.1",
@@ -42,6 +40,7 @@
   "dependencies": {
     "cross-var": "^1.1.0",
     "rxjs": "^6.5.4",
-    "webextension-polyfill": "^0.6.0"
+    "webextension-polyfill": "^0.6.0",
+    "axios": "^0.19.2",
   }
 }
