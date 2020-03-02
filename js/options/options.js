@@ -17,7 +17,6 @@ function setInputValue(input, value) {
         else input.value = value;
     }
 }
-storage.appDataAsync().then( appData => handleAppData(appData) )
 storage.onChange().subscribe( appData => handleAppData(appData) );
 
 $s('div.option input[type="checkbox"]').forEach( el => {
