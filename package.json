@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "npx web-ext run --config=web-ext-config.js",
     "dev:chrome": "npx web-ext run -t chromium --config=web-ext-config.js",
-    "watch": "npx webpack --env.browser=firefox",
-    "watch:chrome": "npx webpack --env.browser=chrome",
+    "watch:chrome": "npx webpack --env.browser=chrome --watch --progress",
+    "watch:firefox": "npx webpack --env.browser=firefox --watch --progress",
     "webpack-chrome": "npx webpack --env.browser=chrome",
     "build-chrome": "npm run webpack-chrome && npx web-ext build --artifacts-dir=web-ext-artifacts/chrome",
     "postbuild-chrome": "npm run archive-source-chrome",
