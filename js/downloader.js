@@ -1,5 +1,6 @@
 import { filewall } from './filewall.js'
 import { BehaviorSubject } from 'rxjs';
+import { storage } from './storage.js';
 
 const browser = require('webextension-polyfill');
 
@@ -49,6 +50,15 @@ class Downloader {
             } else {
                 browser.browserAction.setBadgeBackgroundColor({color:'red'})
                 browser.browserAction.setBadgeText({text: `${length}`})
+            }
+        })
+        storage.onChange().subscribe( store => {
+            const { apiKey, username } = store
+            if (!apiKey) {
+                browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
+                browser.browserAction.setBadgeText({text: '?'})
+            } else {
+                browser.browserAction.setBadgeText({text: ''})
             }
         })
     }

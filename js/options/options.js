@@ -17,7 +17,6 @@ function setInputValue(input, value) {
         else input.value = value;
     }
 }
-storage.appDataAsync().then( appData => handleAppData(appData) )
 storage.onChange().subscribe( appData => handleAppData(appData) );
 
 $s('div.option input[type="checkbox"]').forEach( el => {
@@ -119,7 +118,6 @@ async function login(username, password) {
         username,
         apiKey
     })
-
 }
 
 function logout() {
@@ -157,8 +155,9 @@ function showPage(pageId, pageTitle) {
     // set page title slug
     writeSlug('pageTitleSlug', pageTitle)
     // hide drawer
-    if ($('.mdl-layout').MaterialLayout) {
-        $('.mdl-layout').MaterialLayout.toggleDrawer()
+    const mdlLayout = $('.mdl-layout.is-small-screen')
+    if (mdlLayout && mdlLayout.MaterialLayout) {
+        mdlLayout.MaterialLayout.toggleDrawer()
     }
 }
 
