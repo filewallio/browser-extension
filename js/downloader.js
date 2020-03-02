@@ -58,6 +58,8 @@ class Downloader {
             if (!apiKey) {
                 browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
                 browser.browserAction.setBadgeText({text: '?'})
+            } else {
+                browser.browserAction.setBadgeText({text: ''})
             }
         })
     }
