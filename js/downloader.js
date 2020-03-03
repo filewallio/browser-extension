@@ -1,12 +1,13 @@
 import { filewall } from './filewall.js'
 import { BehaviorSubject } from 'rxjs';
+import { storage } from './storage.js';
 
 const browser = require('webextension-polyfill');
 
 class Downloader {
     constructor() {
         this.activeDownloads = [];
-        this.activeDownload$ = new BehaviorSubject()
+        this.activeDownload$ = new BehaviorSubject([])
         // this.messages = []
         this.message$ = new BehaviorSubject()
         this.lastId = 0;
@@ -42,6 +43,24 @@ class Downloader {
             }
 
         })
+        this.activeDownload$.subscribe( next => {
+            const { length } = next
+            if (length === 0) {
+                browser.browserAction.setBadgeText({text: ''})
+            } else {
+                browser.browserAction.setBadgeBackgroundColor({color:'red'})
+                browser.browserAction.setBadgeText({text: `${length}`})
+            }
+        })
+        storage.onChange().subscribe( store => {
+            const { apiKey, username } = store
+            if (!apiKey) {
+                browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
+                browser.browserAction.setBadgeText({text: '?'})
+            } else {
+                browser.browserAction.setBadgeText({text: ''})
+            }
+        })
     }
 
     addDownload(downloadUrl) {
@@ -53,7 +72,13 @@ class Downloader {
             filename,
             id: this.lastId++
         }
-        
+
+        chrome.tabs.query({active: true}, function (tabs) {
+            tabs.forEach(function (tab) {
+                chrome.tabs.sendMessage(tab.id, "start");
+            })
+        });
+
         const downloadItemSubscription = filewall.process(downloadItem).pipe(
                 // tap( x => this.updateStatus(x) )
             ).subscribe( downloadItem => {
@@ -63,6 +88,12 @@ class Downloader {
                 
                 if (status === 'finished') {
                     console.log('downloaded', downloadItem)
+                    chrome.tabs.query({active: true}, function (tabs) {
+                        tabs.forEach(function (tab) {
+                            chrome.tabs.sendMessage(tab.id, "success");
+                        })
+                    });
+
                     this.removeAciveDownload(downloadItem)
                     browser.downloads.download({
                         url: pollStatus.links.download,

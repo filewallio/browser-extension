@@ -17,17 +17,7 @@ function setInputValue(input, value) {
         else input.value = value;
     }
 }
-storage.onChange().subscribe( appData => {
-    Object.keys(appData).forEach( key => {
-        $s(`div.option input[id='${key}']`)
-            .forEach( input => setInputValue(input, appData[key]))
-    })
-    if (appData.apiKey) {
-        $('#loginDiv').style.display = 'none'
-        writeSlug('usernameSlug', appData.username)
-        $('#logoutDiv').style.display = ''
-    }
-});
+storage.onChange().subscribe( appData => handleAppData(appData) );
 
 $s('div.option input[type="checkbox"]').forEach( el => {
     storage.appDataAsync().then( store => el.checked = store[el.name] );
@@ -103,6 +93,9 @@ $('#logoutLink').addEventListener('click', e => {
     logout()
     showPage('authentication', 'Authentication')
 })
+$('#loginLink').addEventListener('click', e => {
+    showPage('authentication', 'Authentication')
+})
 
 async function login(username, password) {
     let formData = new FormData();
@@ -125,7 +118,6 @@ async function login(username, password) {
         username,
         apiKey
     })
-
 }
 
 function logout() {
@@ -162,4 +154,29 @@ function showPage(pageId, pageTitle) {
     $(`section.${pageId}`).style.display = 'block'
     // set page title slug
     writeSlug('pageTitleSlug', pageTitle)
+    // hide drawer
+    const mdlLayout = $('.mdl-layout.is-small-screen')
+    if (mdlLayout && mdlLayout.MaterialLayout) {
+        mdlLayout.MaterialLayout.toggleDrawer()
+    }
+}
+
+function handleAppData(appData) {
+    console.log('appData changed', appData)
+    Object.keys(appData).forEach( key => {
+        $s(`div.option input[id='${key}']`)
+            .forEach( input => setInputValue(input, appData[key]))
+    })
+    if (appData.apiKey) {
+        $('#loginDiv').style.display = 'none'
+        writeSlug('usernameSlug', appData.username)
+        $('#logoutDiv').style.display = ''
+        $('#logoutLink').style.display = 'flex'
+        $('#loginLink').style.display = 'none'
+    } else {
+        writeSlug('usernameSlug', '')
+        // user not logged in
+        $('#logoutLink').style.display = 'none'
+        $('#loginLink').style.display = 'flex'
+    }
 }

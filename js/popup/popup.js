@@ -1,3 +1,6 @@
+import { login } from '../authentication'
+import { storage } from '../storage'
+
 const $ = document.querySelector.bind(document)
 const $s = document.querySelectorAll.bind(document)
 const browser = require('webextension-polyfill');
@@ -14,6 +17,12 @@ window.addEventListener('load', function () {
     messagePort.onMessage.addListener( message => {
         console.log('message', message)
         showMessage(message)
+    })
+    storage.onChange().subscribe( store => {
+        const { apiKey, username } = store
+        if (!apiKey) {
+            showAuthentication()
+        }
     })
 
     $('#options-open').addEventListener('click', e => {
@@ -111,8 +120,47 @@ window.addEventListener('load', function () {
         writeSlug('messageSlug', '')
         messagePort.postMessage('clear')
     }
+    function hideAuthentication() {
+        $('.authentication').style.display = 'none'
+    }
+    function showAuthentication() {
+        $('.authentication').style.display = 'block'
+    }
     function writeSlug(slugId, text) {
         $s(`.${slugId}`).forEach( slug => slug.textContent = text)
+    }
+    
+    $('#login').addEventListener('click', () => {
+        const username = $('#username')
+        const password = $('#password')
+        const { value: usernameVal } = username
+        const { value: passwordVal } = password
+
+        clearElement(password)
+        setError(); // clear error
+        login(usernameVal, passwordVal).then( () => {
+            hideAuthentication()
+            // clear login inputs
+            clearElement(username)
+        }).catch( error => {
+            console.log('in error catch', error)
+            if (error && error.error === 'auth_failed') {
+                setError('invalid-creds')
+            } else {
+                setError('technical-error')
+            }
+            clearElement(username)
+        })
+    })
+    function clearElement(el) {
+        el.value = ''
+        el.parentElement.classList.remove('is-dirty')
+    }
+    function setError(loginError) {
+        $s(`.login-error:not(#${loginError})`).forEach( el => el.style.display = 'none');
+        if (loginError) {
+            $(`#${loginError}`).style.display = 'block';
+        }
     }
 
 });

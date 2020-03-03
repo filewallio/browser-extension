@@ -78,6 +78,7 @@ class Storage {
                     this.getAppData().then( store => observer.next(store) )
                 }
             });
+            this.getAppData().then( store => observer.next(store) )
         });
     }
 }

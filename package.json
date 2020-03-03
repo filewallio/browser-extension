@@ -1,20 +1,20 @@
 {
   "name": "filewallio",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Filewall.io Chrome Extension",
   "author": "filewallio",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "web-ext run --config=web-ext-config.js",
-    "webpack": "npx webpack --watch --progress",
-    "webpack-build": "npx webpack --config webpack.config.js",
-    "webpack-build:chrome": "npx webpack --env.browser=chrome",
-    "webpack-build:firefox": "npx webpack --env.browser=firefox",
-    "build-chrome": "npm run webpack-build:chrome && web-ext build --artifacts-dir=web-ext-artifacts/chrome",
+    "dev": "npx web-ext run --config=web-ext-config.js",
+    "dev:chrome": "npx web-ext run -t chromium --config=web-ext-config.js",
+    "watch:chrome": "npx webpack --env.browser=chrome --watch --progress",
+    "watch:firefox": "npx webpack --env.browser=firefox --watch --progress",
+    "webpack-chrome": "npx webpack --env.browser=chrome",
+    "build-chrome": "npm run webpack-chrome && npx web-ext build --artifacts-dir=web-ext-artifacts/chrome",
     "postbuild-chrome": "npm run archive-source-chrome",
     "archive-source-chrome": "cross-var git archive -o web-ext-artifacts/chrome/$npm_package_name-$npm_package_version-source.zip HEAD",
-    "build-firefox": "npm run webpack-build:firefox && web-ext build --artifacts-dir=web-ext-artifacts/firefox",
+    "webpack-firefox": "npx webpack --env.browser=firefox",
+    "build-firefox": "npm run webpack-firefox && npx web-ext build --artifacts-dir=web-ext-artifacts/firefox",
     "postbuild-firefox": "npm run archive-source-firefox",
     "archive-source-firefox": "cross-var git archive -o web-ext-artifacts/firefox/$npm_package_name-$npm_package_version-source.zip HEAD"
   },
@@ -32,16 +32,18 @@
     "npm": ">=5.2.0"
   },
   "devDependencies": {
-    "axios": "^0.19.2",
     "copy-webpack-plugin": "^5.1.1",
     "eslint": "^6.8.0",
     "generate-json-webpack-plugin": "^0.3.1",
     "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "web-ext": "^4.1.0"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "cross-var": "^1.1.0",
     "rxjs": "^6.5.4",
+    "web-ext": "^4.1.0",
     "webextension-polyfill": "^0.6.0"
   }
 }

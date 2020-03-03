@@ -85,3 +85,16 @@ div.message {
     width: 100%;
     /* height: 100%; */
 }
+
+.authentication {
+    padding: 20px;
+}
+.authentication .authentication__input {
+    width: 100%;
+}
+.authentication .authentication__button {
+    min-width: 70px;
+}
+.authentication .authentication__spacer {
+    width: 20px;
+}
