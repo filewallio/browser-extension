@@ -37,7 +37,7 @@
 }
 
 .hamburger-container {
-    padding: 10px;
+    padding: 15px;
 }
 
 /* download item styles */
@@ -104,5 +104,8 @@ div.message {
 }
 .popup__header_img{
     max-height: 2em;
-    margin: 10px;
+    margin: 15px;
 }
+.options_menu {
+    color:gray;
+ }
