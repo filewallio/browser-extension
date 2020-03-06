@@ -109,3 +109,7 @@ div.message {
 .options_menu {
     color:gray;
  }
+
+.progressbar {
+    background-color: #9dc800 !important;
+}
