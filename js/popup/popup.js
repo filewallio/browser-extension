@@ -45,9 +45,10 @@ window.addEventListener('load', function () {
 
     function buildDownloadItemView(downloadItem) {
         
-        const { downloadUrl, filename, id, status, progress } = downloadItem
-        let percentLoaded = '~'
-        let transferRate = ''
+        const { downloadUrl, filename, id, status, progress } = downloadItem;
+        let percentLoaded = '~';
+        let transferRate = '';
+        let status_class = '';
         if (progress) {
             const { loaded, total, rate } = progress
             percentLoaded = Math.round(100 * (loaded / total))
@@ -65,6 +66,10 @@ window.addEventListener('load', function () {
             'finished': 100
         }
 
+        if(status === 'processing' || status === 'waiting'){
+            status_class = 'mdl-progress__indeterminate'
+        }
+
         return `
             <div class="download-item-grid download-item" id="download-item-${id}">
                 <div class="download-item__icon">
@@ -72,7 +77,7 @@ window.addEventListener('load', function () {
                 </div>
                 <div class="download-item__filename center">${filename}${transferRate}</div>
                 <div class="download-item__progress center">
-                    <div class="mdl-progress mdl-js-progress" style="width:${stateOrder[status]}%;"></div>
+                    <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
                 </div>
                 <div class="download-item__close">
                     <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
