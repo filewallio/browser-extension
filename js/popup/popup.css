@@ -98,3 +98,11 @@ div.message {
 .authentication .authentication__spacer {
     width: 20px;
 }
+
+.popup__header {
+     border-bottom: 1px solid lightgray;
+}
+.popup__header_img{
+    max-height: 2em;
+    margin: 10px;
+}
