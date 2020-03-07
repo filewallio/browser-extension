@@ -102,6 +102,17 @@ div.message {
 .popup__header {
      border-bottom: 1px solid lightgray;
 }
+.popup__bottom {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    padding: 15px;
+    border-top: 1px solid lightgray;
+}
+.popup__options {
+    margin: 15px;
+}
+
 .popup__header_img{
     max-height: 2em;
     margin: 15px;
@@ -112,4 +123,12 @@ div.message {
 
 .progressbar {
     background-color: #9dc800 !important;
+}
+
+.mdl-switch.is-checked .mdl-switch__thumb {
+    background: #6f8d00;
+}
+
+.mdl-switch.is-checked .mdl-switch__track {
+    background: #9dc800;
 }

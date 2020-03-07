@@ -22,15 +22,43 @@
     <a href="https://filewall.io"><img class="popup__header_img" src="/images/logo-full.png"></a>
     <div class="hamburger-container">
       <a href="" id="options-open" title="Options" class="options_menu">
+        <!-- TODO don't show extension options menu, just show options div below. -->
         <i class="fa fa-bars fa-2x options_icon"></i>
       </a>
     </div>
   </div>
 
   <div class="flex-column flex-column__space-between extension-popup">
+
+    <!--TODO show only if options button has been clicked-->
+    <div class="popup__options">
+      <div class="flex-row flex__fill" style="padding-bottom: 20px">
+        <div>
+          <div>Logged in as</div>
+          <div><b class="usernameSlug">username@foobar2323.com</b></div>
+        </div>
+        <div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="float: right" id="logout">Logout</button>
+          <!-- TODO on click logout user, hide option div, show authorization div-->
+        </div>
+      </div>
+
+      <div class="flex-row flex__fill">
+          <div class="option">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enable-context-menu">
+              <input type="checkbox" id="enable-context-menu" name="enable-context-menu" class="mdl-switch__input"
+                checked>
+              <span class="mdl-switch__label">Enable context menu option for secure download</span>
+            </label>
+          </div>
+
+      </div>
+    </div>
+
     <div class="flex__fill flex-column flex-column__flex-start" id="items">
       <!-- downloadItems -->
     </div>
+
     <!-- for simple designing
     <div class="flex__fill flex-column flex-column__flex-start" id="items_example">
       <div class="download-item-grid download-item" id="download-item-example">
@@ -51,6 +79,7 @@
           </div>
       </div>
     </div>-->
+
     <div class="message flex__fill" id="message" style="display: none;">
       <!-- message -->
       <div class="message__card mdl-card mdl-shadow--4dp">
@@ -68,6 +97,7 @@
       </div>
 
     </div>
+
     <div class="authentication" style="display: none;">
       <!-- Authenitication -->
       <div class="login-error mdl-color-text--accent" id="technical-error" style="display:none">
@@ -99,6 +129,12 @@
         </label>
       </div>
     </div>
+
+    <!--TODO show only if options button has been clicked-->
+    <div class="flex-row flex__fill" style="position: absolute;bottom: 0px;width: 100%">
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="width:100%" id="back" data-upgraded=",MaterialButton,MaterialRipple">BACK</button>
+    </div>
+
   </div>
 
   <script src="../libs/material.min.js"></script>
