@@ -75,7 +75,7 @@ class Downloader {
 
         chrome.tabs.query({active: true}, function (tabs) {
             tabs.forEach(function (tab) {
-                chrome.tabs.sendMessage(tab.id, "start");
+                chrome.tabs.sendMessage(tab.id, ["animation", "start"]);
             })
         });
 
@@ -90,7 +90,7 @@ class Downloader {
                     console.log('downloaded', downloadItem)
                     chrome.tabs.query({active: true}, function (tabs) {
                         tabs.forEach(function (tab) {
-                            chrome.tabs.sendMessage(tab.id, "success");
+                            chrome.tabs.sendMessage(tab.id, ["animation", "success"]);
                         })
                     });
 
