@@ -65,6 +65,7 @@ class Downloader {
 
     addDownload(downloadUrl) {
         // take text after last '/' as filename
+        // TODO GET FILENAME FROM CONTENT DISPOSITION IN RESPONSE!
         const filename = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
 
         let downloadItem = {

@@ -51,36 +51,34 @@ browser.runtime.onInstalled.addListener(() => {
 browser.downloads.onCreated.addListener( downloadItem => {
     console.log('downloads.onCreated')
 
-    storage.appDataAsync().then(data => {
-        console.log('downloadItem', data)
-        if (data.auto_secure_downloads === true) {
-            for (const baseUrl of window.baseurls) {
+    storage.appDataAsync().then(appData => {
+        if (appData['catch-all-downloads']  === true) {
+            var baseurls = [
+                "https://filewall.io"   ,
+                "https://eu.filewall.io",
+                "https://us.filewall.io",
+                "http://127.0.0.1:8000"
+            ];
+            for (const baseUrl of baseurls) {
                 if (downloadItem.url.startsWith(baseUrl)) {
                     return;
                 }
             }
-            for (const autoSecureExcludeUrl of data.auto_secure_exclude_urls) {
-                if (downloadItem.url.startsWith(autoSecureExcludeUrl)) { // url is excluded
-                    return
-                }
+            browser.downloads.cancel(downloadItem.id);
+            if (downloadItem.state == "complete") {
+                browser.downloads.removeFile(downloadItem.id);
             }
-            cancel_and_erase_downlad(downloadItem);
-            download_to_memory(downloadItem.url);
+            browser.downloads.erase({id: downloadItem.id});
 
-        } else {
-            console.log('data.auto_secure_downloads === false')
-            let canceled = false;
-            for (const autoSecureUrl of data.auto_secure_urls) {
-                if (downloadItem.url.startsWith(autoSecureUrl)) { // url is included
-                    cancel_and_erase_downlad(downloadItem);
-                    download_to_memory(downloadItem.url);
-                    canceled = true;
-                    break;
-                }
-            }
-            if (canceled == false && data.auto_cancel_insecure === true) {
-                cancel_and_erase_downlad(downloadItem);
-            }
+            // send msg to indicator to show "download intercepted" msg
+            // msg asks user if direct or via filewall.io
+            // on result:
+            //  if via filewall:
+            //    downloader.addDownload(downloadItem.url);
+            //  if direct:
+            //    browser.downloads.download({ url: downloadItem.url, });
+            //
+
         }
     });
 });
@@ -91,12 +89,3 @@ browser.downloads.onCreated.addListener( downloadItem => {
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE
 browser.downloads.onErased.addListener(function (downloadId) { });
-
-
-
-function download_to_memory(download_url) {
-    let downloadItem = new DownloadItem(download_url);
-    downloadItem.start_process();
-    active_downloads.push(downloadItem);
-    update_icon();
-}
