@@ -22,16 +22,93 @@ window.addEventListener('load', function () {
         const { apiKey, username } = store
         if (!apiKey) {
             showAuthentication()
+        }else{
+            $('#bottom__username').innerHTML = store["username"]
+            $('#usernameSlug').innerHTML = store["username"]
         }
     })
 
     $('#options-open').addEventListener('click', e => {
         e.preventDefault()
-        browser.runtime.openOptionsPage();
+        //browser.runtime.openOptionsPage();
+        if($('#popup__options').style.display === "block"){
+            $('#popup__options').style.display = 'none';
+            $('#popup__options_back').style.display = 'none';
+            $('#popup__bottom').style.display = 'block';
+        }else{
+            $('#popup__options').style.display = 'block';
+            $('#popup__options_back').style.display = 'block';
+            $('#popup__bottom').style.display = 'none';
+        }
+
+
     })
+
+    $('#popup__options_back').addEventListener('click', e => {
+        e.preventDefault()
+        $('#popup__options').style.display = 'none';
+        $('#popup__options_back').style.display = 'none';
+        $('#popup__bottom').style.display = 'block';
+
+    })
+
     $('#clear-message').addEventListener('click', e => {
         hideMessage()
     })
+    $('#logout').addEventListener('click', () => {
+        storage.setAppData({
+            apiKey: null,
+            username: null
+        }).then()
+    })
+
+    var el_ctxm = $('#enable-context-menu');
+    storage.appDataAsync().then( store => el_ctxm.checked = store[el_ctxm.name] );
+    el_ctxm.addEventListener( 'change', (event) => {
+        const { name, checked } = event.target;
+        storage.setAppData({
+            [name]: checked
+        })
+    })
+
+    var el_catchall = $('#catch-all-downloads');
+    storage.appDataAsync().then( store => el_catchall.checked = store[el_catchall.name] );
+    el_catchall.addEventListener( 'change', (event) => {
+        const { name, checked } = event.target;
+        storage.setAppData({
+            [name]: checked
+        })
+    })
+
+    storage.appDataAsync().then( store => {
+        $('#bottom__username').innerHTML = store["username"];
+        $('#usernameSlug').innerHTML = store["username"];
+    });
+
+    $('#login').addEventListener('click', () => {
+        const username = $('#username')
+        const password = $('#password')
+        const { value: usernameVal } = username
+        const { value: passwordVal } = password
+
+        clearElement(password)
+        setError(); // clear error
+        login(usernameVal, passwordVal).then( () => {
+            hideAuthentication()
+            // clear login inputs
+            clearElement(username)
+        }).catch( error => {
+            console.log('in error catch', error)
+            if (error && error.error === 'auth_failed') {
+                setError('invalid-creds')
+            } else {
+                setError('technical-error')
+            }
+            clearElement(username)
+        })
+    })
+
+
 
     function renderDownloadItems(activeDownloads) {
         if (!activeDownloads) return
@@ -126,37 +203,21 @@ window.addEventListener('load', function () {
         messagePort.postMessage('clear')
     }
     function hideAuthentication() {
+        $('#options-open').style.display = 'block';
+        $('#popup__bottom').style.display = 'block';
         $('.authentication').style.display = 'none'
     }
     function showAuthentication() {
-        $('.authentication').style.display = 'block'
+        $('#popup__options').style.display = 'none';
+        $('#popup__options_back').style.display = 'none';
+        $('#popup__bottom').style.display = 'none';
+        $('#options-open').style.display = 'none';
+        $('.authentication').style.display = 'block';
     }
     function writeSlug(slugId, text) {
         $s(`.${slugId}`).forEach( slug => slug.textContent = text)
     }
-    
-    $('#login').addEventListener('click', () => {
-        const username = $('#username')
-        const password = $('#password')
-        const { value: usernameVal } = username
-        const { value: passwordVal } = password
 
-        clearElement(password)
-        setError(); // clear error
-        login(usernameVal, passwordVal).then( () => {
-            hideAuthentication()
-            // clear login inputs
-            clearElement(username)
-        }).catch( error => {
-            console.log('in error catch', error)
-            if (error && error.error === 'auth_failed') {
-                setError('invalid-creds')
-            } else {
-                setError('technical-error')
-            }
-            clearElement(username)
-        })
-    })
     function clearElement(el) {
         el.value = ''
         el.parentElement.classList.remove('is-dirty')

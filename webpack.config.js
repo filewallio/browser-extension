@@ -54,7 +54,8 @@ module.exports = env => ({
   entry: {
     'background/background': './js/background.js',
     'options/options': './js/options/options.js',
-    'popup/popup': './js/popup/popup.js'
+    'popup/popup': './js/popup/popup.js',
+    'dialog/dialog': './js/dialog/dialog.js'
   },
 
   output: {
@@ -72,6 +73,7 @@ module.exports = env => ({
       { from: 'js/indicator.js', to: 'indicator.js', flatten: true },
       { from: '_locales', to: '_locales', flatten: false },
       { from: 'js/popup/popup.html', to: 'popup', flatten: true },
+      { from: 'js/dialog/dialog.html', to: 'dialog', flatten: true },
       { from: 'js/popup/popup.css', to: 'popup', flatten: true },
       { from: 'js/options/*', to: 'options', flatten: true }
     ], {})

@@ -105,8 +105,9 @@ div.message {
 .popup__bottom {
     position: absolute;
     bottom: 0px;
+    text-align: center;
     width: 100%;
-    padding: 15px;
+    padding: 10px;
     border-top: 1px solid lightgray;
 }
 .popup__options {
@@ -116,6 +117,10 @@ div.message {
 .popup__header_img{
     max-height: 2em;
     margin: 15px;
+}
+.option {
+    min-height: 3em;
+    margin: 5px;
 }
 .options_menu {
     color:gray;
