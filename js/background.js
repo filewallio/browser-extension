@@ -14,6 +14,7 @@ browser.runtime.onInstalled.addListener(() => {
     console.log('onInstalled')
 
     storage.appDataAsync().then(appData => {
+
         if (appData['enable-context-menu'] === true) {
             browser.contextMenus.create({
                 id: 'secure_download',
@@ -32,7 +33,7 @@ browser.runtime.onInstalled.addListener(() => {
         }
         // send user to options page if not logged in
         if (!appData.apiKey) {
-            browser.runtime.openOptionsPage();
+            //browser.runtime.openOptionsPage();
         }
     });
 
