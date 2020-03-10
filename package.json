@@ -1,6 +1,6 @@
 {
   "name": "filewallio",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Filewall.io Chrome Extension",
   "author": "filewallio",
   "main": "index.js",
