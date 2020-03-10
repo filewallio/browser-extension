@@ -18,19 +18,31 @@
 <body>
 
 	<style>
-		.fwiodli_main { }
+		.fwiodli_main {
+			padding-left: 20px;
+			padding-right: 15px;
+			padding-top: 15px;
+		}
 		.fwiodli_warning {
 			text-align: center;
 			background: #fff3cd;
 			font-size: 1.2em;
 			border-color: #ffeeba;
-			padding: 8px;
-			margin-top: 10px;
-			margin-bottom: 10px;
+			padding: 10px;
+			margin-top: 15px;
+			margin-bottom: 15px;
 			border-radius: 5px;
 		}
 		.fwiodli_header_img {
 			height: 20px;
+		}
+		.fwiodli_header_close {
+			position: absolute;
+			right: 15px;
+			top:  5px;
+			color   : gray;
+			font-size: 1.2em;
+			cursor  : pointer;
 		}
 
 		.btn-green {
@@ -68,23 +80,25 @@
 		}
 
 	</style>
-	<div class="fwiodli_header">
-		<img class="fwiodli_header_img" src="/images/logo-full.png">
-	</div>
+		<div class="fwiodli_main">
 
-	<div class="fwiodli_main">
-		<div class="fwiodli_warning">
-			Download intercepted!
-		</div>
-		<div>
-			<div class="btn_tofw">
-				<button class="btn-green " id="fwiodli_tofw_btn">Send to Filewall.io</button>
+			<div class="fwiodli_header">
+				<img class="fwiodli_header_img" src="/images/logo-full.png">
+				<p class="fwiodli_header_close" id="fwiodli_header_close">Close</p>
 			</div>
-			<div class="btn_direct">
-				<a id="fwiodli_direct" href="#">Direct download</a>
+
+			<div class="fwiodli_warning">
+				Insecure download intercepted!
+			</div>
+			<div style="    min-height: 70px;">
+				<div class="btn_tofw">
+					<button class="btn-green " id="fwiodli_tofw_btn">Send to Filewall.io</button>
+				</div>
+				<div class="btn_direct">
+					<a id="fwiodli_direct" href="#">Direct download</a>
+				</div>
 			</div>
 		</div>
-	</div>
   <script src="../libs/material.min.js"></script>
   <script src="./dialog.js" async></script>
 </body>

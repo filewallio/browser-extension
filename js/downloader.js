@@ -87,7 +87,7 @@ class Downloader {
                 })
             });
             delete this.catchedDownloads[download_id];
-        }, 30000); // hide or timeout after 30 sec.
+        }, 60000); // hide or timeout after 60 sec.
     }
 
     wasConfirmedDirect(downloadUrl){

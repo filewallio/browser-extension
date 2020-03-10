@@ -23,11 +23,10 @@ function showDialog(message){
 						opacity : 1;
 						z-index : 2000000000;
 						width   : 400px;
+						height  : 180px;
 						top     : 0px;
 						right   : 0px;
-						padding-top : 10px;
-						padding-right :10px;
-						padding-left : 20px;
+						padding : 0px;
 						border-top    : 0px;
 						border-right  : 0px;
 						border-bottom : 1px solid #9dc800;
