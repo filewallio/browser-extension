@@ -18,10 +18,64 @@
 
 <body>
 
-  <div class="flex-column flex-column__space-between extension-popup">
-    <div class="flex__fill flex-column flex-column__flex-start" id="items">
-      <!-- downloadItems -->
+  <div class="flex-row popup__header">
+    <a href="https://filewall.io"><img class="popup__header_img" src="/images/logo-full.png"></a>
+    <div class="hamburger-container">
+      <a href="" id="options-open" title="Options" class="options_menu">
+        <i class="fa fa-bars fa-2x options_icon"></i>
+      </a>
     </div>
+  </div>
+
+  <div class="flex-column extension-popup">
+
+    <div class="popup__options flex-column" id="popup__options" style="display:none;">
+      <div class="flex-row" style="padding-bottom: 20px">
+        <div>
+          <div>Logged in as</div>
+          <div><b class="usernameSlug" id="usernameSlug"></b></div>
+        </div>
+        <div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="float: right" id="logout">Logout</button>
+        </div>
+      </div>
+      <div class="flex-column">
+          <div class="option">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enable-context-menu">
+              <input type="checkbox" id="enable-context-menu" name="enable-context-menu" class="mdl-switch__input">
+              <span class="mdl-switch__label">Enable context menu option for secure download</span>
+            </label>
+          </div>
+          <div class="option">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="catch-all-downloads">
+              <input type="checkbox" id="catch-all-downloads" name="catch-all-downloads" class="mdl-switch__input" >
+              <span class="mdl-switch__label">catch-all-downloads</span>
+            </label>
+          </div>
+      </div>
+    </div>
+
+    <!-- for simple designing
+    <div class="flex__fill flex-column flex-column__flex-start" id="items_example">
+      <div class="download-item-grid download-item" id="download-item-example">
+          <div class="download-item__icon fa-stack ">
+              <i class="fa fa-file-o fa-stack-2x fa-2x" aria-hidden="true"></i>
+              <i class="fa fa-question fa-stack-1x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename center">pdf.pdf</div>
+          <div class="download-item__progress center">
+              <div class="mdl-progress mdl-progress__indeterminate mdl-js-progress is-upgraded" style="width:50%;" data-upgraded=",MaterialProgress">
+                <div class="progressbar bar bar1 " style="width: 0%;"></div>
+                <div class="bufferbar bar bar2" style="width: 100%;"></div>
+                <div class="auxbar bar bar3" style="width: 0%;"></div>
+              </div>
+          </div>
+          <div class="download-item__close">
+              <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
+          </div>
+      </div>
+    </div>-->
+
     <div class="message flex__fill" id="message" style="display: none;">
       <!-- message -->
       <div class="message__card mdl-card mdl-shadow--4dp">
@@ -39,6 +93,7 @@
       </div>
 
     </div>
+
     <div class="authentication" style="display: none;">
       <!-- Authenitication -->
       <div class="login-error mdl-color-text--accent" id="technical-error" style="display:none">
@@ -70,17 +125,22 @@
         </label>
       </div>
     </div>
-    <div class="flex-row popup__footer">
-      <!-- footer -->
-      <div class="center flex__fill">
-        <a target="_blanc" href="https://filewall.io">Show on filewall.io</a>
-      </div>
-      <div class="hamburger-container">
-        <a href="" id="options-open" title="Options" class="options_menu">
-          <i class="fa fa-bars fa-2x options_icon"></i>
-        </a>
+
+    <div class="flex__fill flex-column flex-column__flex-start" id="items">
+      <!-- downloadItems -->
+    </div>
+
+    <div id="popup__options_back" class="flex-row flex__fill" style="position: absolute;bottom: 0px;width: 100%; display:none">
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="width:100%" id="back" data-upgraded=",MaterialButton,MaterialRipple">BACK</button>
+    </div>
+
+    <div class="popup__bottom flex-column" id="popup__bottom">
+      <div id="bottom__username">
+              <!-- show username if logged in-->
       </div>
     </div>
+
+
   </div>
 
   <script src="../libs/material.min.js"></script>

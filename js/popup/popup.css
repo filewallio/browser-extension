@@ -37,7 +37,7 @@
 }
 
 .hamburger-container {
-    padding: 10px;
+    padding: 15px;
 }
 
 /* download item styles */
@@ -97,4 +97,43 @@ div.message {
 }
 .authentication .authentication__spacer {
     width: 20px;
+}
+
+.popup__header {
+     border-bottom: 1px solid lightgray;
+}
+.popup__bottom {
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    border-top: 1px solid lightgray;
+}
+.popup__options {
+    margin: 15px;
+}
+
+.popup__header_img{
+    max-height: 2em;
+    margin: 15px;
+}
+.option {
+    min-height: 3em;
+    margin: 5px;
+}
+.options_menu {
+    color:gray;
+ }
+
+.progressbar {
+    background-color: #9dc800 !important;
+}
+
+.mdl-switch.is-checked .mdl-switch__thumb {
+    background: #6f8d00;
+}
+
+.mdl-switch.is-checked .mdl-switch__track {
+    background: #9dc800;
 }

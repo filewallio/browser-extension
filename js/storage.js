@@ -12,10 +12,11 @@ class Storage {
             'username': '',
             'baseUrl': '',
             'enable-context-menu': true,
-            'auto_secure_downloads': false,
-            'auto_cancel_insecure': false,
-            'auto_secure_urls': [],
-            'auto_secure_exclude_urls': [],
+            'catch-all-downloads': false,
+            //'auto_secure_downloads': false,
+            //'auto_cancel_insecure': false,
+            //'auto_secure_urls': [],
+            //'auto_secure_exclude_urls': [],
             'pollInterval': 2000,
             'pollTimout': 30
         }

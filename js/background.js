@@ -14,6 +14,7 @@ browser.runtime.onInstalled.addListener(() => {
     console.log('onInstalled')
 
     storage.appDataAsync().then(appData => {
+
         if (appData['enable-context-menu'] === true) {
             browser.contextMenus.create({
                 id: 'secure_download',
@@ -25,7 +26,6 @@ browser.runtime.onInstalled.addListener(() => {
             browser.contextMenus.onClicked.addListener((info, tab) => {
                 if (info.menuItemId === 'secure_download') {
                     downloader.addDownload(info.linkUrl);
-                    // download_to_memory(info.linkUrl);
                 }
             });
         } else {
@@ -33,7 +33,7 @@ browser.runtime.onInstalled.addListener(() => {
         }
         // send user to options page if not logged in
         if (!appData.apiKey) {
-            browser.runtime.openOptionsPage();
+            //browser.runtime.openOptionsPage();
         }
     });
 
@@ -49,54 +49,58 @@ browser.runtime.onInstalled.addListener(() => {
 // This will catch normal downloads
 // CREATE
 browser.downloads.onCreated.addListener( downloadItem => {
-    console.log('downloads.onCreated')
+    console.log('downloads.onCreated', downloadItem)
 
-    storage.appDataAsync().then(data => {
-        console.log('downloadItem', data)
-        if (data.auto_secure_downloads === true) {
-            for (const baseUrl of window.baseurls) {
+    storage.appDataAsync().then(appData => {
+        if (appData['catch-all-downloads']  === true) {
+
+            if(downloader.wasConfirmedDirect(downloadItem.url)){
+                return;
+            }
+
+            var baseurls = [
+                "https://filewall.io"   ,
+                "https://eu.filewall.io",
+                "https://us.filewall.io",
+                "http://127.0.0.1",
+                "chrome-extension://",
+            ];
+            for (const baseUrl of baseurls) {
                 if (downloadItem.url.startsWith(baseUrl)) {
                     return;
                 }
             }
-            for (const autoSecureExcludeUrl of data.auto_secure_exclude_urls) {
-                if (downloadItem.url.startsWith(autoSecureExcludeUrl)) { // url is excluded
-                    return
-                }
-            }
-            cancel_and_erase_downlad(downloadItem);
-            download_to_memory(downloadItem.url);
 
-        } else {
-            console.log('data.auto_secure_downloads === false')
-            let canceled = false;
-            for (const autoSecureUrl of data.auto_secure_urls) {
-                if (downloadItem.url.startsWith(autoSecureUrl)) { // url is included
-                    cancel_and_erase_downlad(downloadItem);
-                    download_to_memory(downloadItem.url);
-                    canceled = true;
-                    break;
-                }
+            // cancel existing download
+            browser.downloads.cancel(downloadItem.id);
+            if (downloadItem.state === "complete") {
+                browser.downloads.removeFile(downloadItem.id);
             }
-            if (canceled == false && data.auto_cancel_insecure === true) {
-                cancel_and_erase_downlad(downloadItem);
-            }
+            browser.downloads.erase({id: downloadItem.id});
+
+            // ask user
+            downloader.addCatchedDownload(downloadItem.url);
         }
     });
 });
 
+// Get confirm messages from dialog iframe     // TODO xss?
+browser.runtime.onMessage.addListener((request) => {
+    if (request.download_id){
+        downloader.confirmCatchedDownload(request.download_id, request.action)
+    }
+});
+
 // DETERMINE FILENAME
-// browser.downloads.onDeterminingFilename.addListener(function (item, suggest) { });
+browser.downloads.onDeterminingFilename.addListener(function (item, suggest) {
+   console.log("onDeterminingFilename", item);
+   storage.appDataAsync().then(appData => {
+        if (appData['catch-all-downloads']  === true) {
+            downloader.onDeterminingFilename(item.url, item.filename)
+        }
+   })
+});
 // CATCH COMPLETED DOWNLOAD
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE
 browser.downloads.onErased.addListener(function (downloadId) { });
-
-
-
-function download_to_memory(download_url) {
-    let downloadItem = new DownloadItem(download_url);
-    downloadItem.start_process();
-    active_downloads.push(downloadItem);
-    update_icon();
-}
