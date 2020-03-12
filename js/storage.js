@@ -41,7 +41,6 @@ class Storage {
     }
 
     getAppData() {
-        console.log('this.appData', this.appData, 'browser.storage.sync.get(Object.keys(this.appData))', browser.storage.sync.get(Object.keys(this.appData)))
         const dataItems = Object.keys(this.appData);
         return browser.storage.sync.get(dataItems)
     }
@@ -79,7 +78,6 @@ class Storage {
             browser.storage.onChanged.addListener( (changes, areaName) => {
                 if (areaName === 'sync') {
                     this.getAppData().then( store => {
-                        console.log('getAppData.then', store, 'changes', changes)
                         observer.next(store);
                     } )
                 }
