@@ -1,5 +1,6 @@
 import { login } from '../authentication'
 import { storage } from '../storage'
+import { html } from 'common-tags'
 
 const $ = document.querySelector.bind(document)
 const $s = document.querySelectorAll.bind(document)
@@ -20,12 +21,15 @@ window.addEventListener('load', function () {
     })
     storage.onChange().subscribe( store => {
         const { apiKey, username } = store
-        if (!apiKey) {
+        if (apiKey) {
+            writeSlug('usernameSlug', username)
+        } else {
             showAuthentication()
-        }else{
-            $('#bottom__username').innerHTML = store["username"]
-            $('#usernameSlug').innerHTML = store["username"]
         }
+        Object.keys(store).forEach( key => {
+            $s(`div.option input[id='${key}']`)
+                .forEach( input => setInputValue(input, store[key]))
+        })
     })
 
     $('#options-open').addEventListener('click', e => {
@@ -61,29 +65,15 @@ window.addEventListener('load', function () {
             username: null
         }).then()
     })
-
-    var el_ctxm = $('#enable-context-menu');
-    storage.appDataAsync().then( store => el_ctxm.checked = store[el_ctxm.name] );
-    el_ctxm.addEventListener( 'change', (event) => {
-        const { name, checked } = event.target;
-        storage.setAppData({
-            [name]: checked
+    $s('div.option input[type="checkbox"]').forEach( el => {
+        el.addEventListener( 'change', (event) => {
+            const { name, checked } = event.target;
+            storage.setAppData({
+                [name]: checked
+            })
         })
-    })
-
-    var el_catchall = $('#catch-all-downloads');
-    storage.appDataAsync().then( store => el_catchall.checked = store[el_catchall.name] );
-    el_catchall.addEventListener( 'change', (event) => {
-        const { name, checked } = event.target;
-        storage.setAppData({
-            [name]: checked
-        })
-    })
-
-    storage.appDataAsync().then( store => {
-        $('#bottom__username').innerHTML = store["username"];
-        $('#usernameSlug').innerHTML = store["username"];
     });
+
 
     $('#login').addEventListener('click', () => {
         const username = $('#username')
@@ -147,7 +137,7 @@ window.addEventListener('load', function () {
             status_class = 'mdl-progress__indeterminate'
         }
 
-        return `
+        return html`
             <div class="download-item-grid download-item" id="download-item-${id}">
                 <div class="download-item__icon">
                     <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
@@ -226,6 +216,19 @@ window.addEventListener('load', function () {
         $s(`.login-error:not(#${loginError})`).forEach( el => el.style.display = 'none');
         if (loginError) {
             $(`#${loginError}`).style.display = 'block';
+        }
+    }
+    function setInputValue(input, value) {
+        if (typeof value === 'boolean') {
+            const mdlCheckbox = input.parentElement.MaterialSwitch
+            if (value) {
+                mdlCheckbox.on()
+            } else {
+                mdlCheckbox.off()
+            }
+        } else {
+            if (input.attributes['type'].value === 'range') input.MaterialSlider && input.MaterialSlider.change(value);
+            else input.value = value;
         }
     }
 

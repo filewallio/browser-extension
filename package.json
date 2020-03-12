@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "common-tags": "^1.8.0",
     "cross-var": "^1.1.0",
     "rxjs": "^6.5.4",
     "web-ext": "^4.1.0",
