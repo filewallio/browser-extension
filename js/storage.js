@@ -17,8 +17,8 @@ class Storage {
             //'auto_cancel_insecure': false,
             //'auto_secure_urls': [],
             //'auto_secure_exclude_urls': [],
-            'pollInterval': 2000,
-            'pollTimout': 30
+            'pollInterval': 3 * 1000, // 3 seconds
+            'pollTimout': 220 // 3 seconds * 220 = 11 minute timeout
         }
         this.initDataItems();
         this.onChange().subscribe( store => this.appData = store )
