@@ -12,7 +12,7 @@ class Storage {
             'username': '',
             'baseUrl': '',
             'enable-context-menu': true,
-            'catch-all-downloads': false,
+            'catch-all-downloads': true,
             //'auto_secure_downloads': false,
             //'auto_cancel_insecure': false,
             //'auto_secure_urls': [],
@@ -20,8 +20,9 @@ class Storage {
             'pollInterval': 3 * 1000, // 3 seconds
             'pollTimout': 220 // 3 seconds * 220 = 11 minute timeout
         }
-        this.initDataItems();
-        this.onChange().subscribe( store => this.appData = store )
+        this.initDataItems().then( _ => {
+            this.onChange().subscribe( store => this.appData = store )
+        });
     }
 
     appDataAsync() {
@@ -40,6 +41,7 @@ class Storage {
     }
 
     getAppData() {
+        console.log('this.appData', this.appData, 'browser.storage.sync.get(Object.keys(this.appData))', browser.storage.sync.get(Object.keys(this.appData)))
         const dataItems = Object.keys(this.appData);
         return browser.storage.sync.get(dataItems)
     }
@@ -76,7 +78,10 @@ class Storage {
 
             browser.storage.onChanged.addListener( (changes, areaName) => {
                 if (areaName === 'sync') {
-                    this.getAppData().then( store => observer.next(store) )
+                    this.getAppData().then( store => {
+                        console.log('getAppData.then', store, 'changes', changes)
+                        observer.next(store);
+                    } )
                 }
             });
             this.getAppData().then( store => observer.next(store) )
