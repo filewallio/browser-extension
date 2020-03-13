@@ -86,7 +86,10 @@ class Downloader {
                     chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", download_id: download_id});
                 })
             });
-            delete this.catchedDownloads[download_id];
+            if(downloader.catchedDownloads.hasOwnProperty(download_id)){
+                delete downloader.catchedDownloads[download_id];
+            }
+
         }, 60000); // hide or timeout after 60 sec.
     }
 
