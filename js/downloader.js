@@ -68,28 +68,19 @@ class Downloader {
         })
     }
 
-    addCatchedDownload(downloadUrl){
+    addCatchedDownload(downloadUrl) {
         console.log('addCatchedDownload', downloadUrl)
         var download_id = uuid();
         var dialogurl = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id;
         this.catchedDownloads[download_id] = downloadUrl;
-        chrome.tabs.query({active: true}, function (tabs) {
-            tabs.forEach(function (tab) {
-                chrome.tabs.sendMessage(tab.id, {target: "dialog", dialog_url: dialogurl, action: "show", download_id:download_id });
-            })
-        });
-        setTimeout(function(){
-            // todo this is not clever, whats the better way to close the dialog?
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (tab) {
-                    chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", download_id: download_id});
-                })
-            });
+        this.sendMessageToActiveTab({target: "dialog", dialog_url: dialogurl, action: "show", download_id });
+        setTimeout( () => {
+            this.sendMessageToActiveTab({target: "dialog", action: "hide", download_id});
             delete this.catchedDownloads[download_id];
-        }, 60000); // hide or timeout after 60 sec.
+        }, 60 * 1000); // hide or timeout after 60 sec.
     }
 
-    wasConfirmedDirect(downloadUrl){
+    wasConfirmedDirect(downloadUrl) {
         if (this.wasConfirmedDirectUrls[downloadUrl] === true) {
             delete this.wasConfirmedDirectUrls[downloadUrl];
             return true;
@@ -97,26 +88,21 @@ class Downloader {
         return false;
     }
 
-    confirmCatchedDownload(download_id, action){
+    confirmCatchedDownload(download_id, action) {
         console.log("confirmCatchedDownload")
-        if( action === "direct"){
+        if ( action === "direct") {
             this.wasConfirmedDirectUrls[this.catchedDownloads[download_id]] = true;
-            browser.downloads.download({ url: this.catchedDownloads[download_id], });
+            browser.downloads.download({ url: this.catchedDownloads[download_id] });
             delete this.catchedDownloads[download_id];
         }
-        if( action === "filewall"){
+        if ( action === "filewall") {
             this.addDownload(this.catchedDownloads[download_id] );
             delete this.catchedDownloads[download_id];
         }
-        // todo this is not clever, whats the better way to close the dialog?
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (tab) {
-                chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", download_id: download_id});
-            })
-        });
+        this.sendMessageToActiveTab({target: "dialog", action: "hide", download_id});
     }
 
-    onDeterminingFilename(url, filename){
+    onDeterminingFilename(url, filename) {
         console.log('onDeterminingFilename', url, filename)
         // todo use this filename if needed
     }
@@ -131,7 +117,6 @@ class Downloader {
             filename,
             id: this.lastId++
         }
-
         chrome.tabs.query({active: true}, function (tabs) {
             tabs.forEach(function (tab) {
                 chrome.tabs.sendMessage(tab.id, { target: "animation", action: "start"});
@@ -216,6 +201,15 @@ class Downloader {
     sanitizeItem(item) {
         const { downloadItemSubscription, ...rest } = item
         return rest
+    }
+    async sendMessageToActiveTab(message) {
+        try {
+            const [{id: activeTabId}] = await browser.tabs.query({ active: true, currentWindow: true });
+            const response = await browser.tabs.sendMessage(activeTabId, message);
+            return response;
+        } catch {
+            return false;
+        }
     }
 }
 export let downloader = new Downloader();
