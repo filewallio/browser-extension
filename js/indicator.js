@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(function (message) {
-	console.log('msg received:'+ message);
+	console.log('msg received:', message);
 
 	if(message.target === "animation"){
 		showStartAnim(message);
