@@ -1,46 +1,20 @@
 // import { browser } from 'webextension-polyfill';
 import { storage } from './storage.js';
 import { downloader } from './downloader.js';
-import { filewall } from './filewall.js'
 const browser = require('webextension-polyfill');
 
-// browser.tabs.create({url: browser.runtime.getURL('/popup/popup.html')})
+storage.onChange().subscribe(store => {
 
-//
-// ON INSTALL
-//
-browser.runtime.onInstalled.addListener(() => {
-    // ga('send', 'pageview', '/extension/install');
-    console.log('onInstalled')
-
-    storage.appDataAsync().then(appData => {
-
-        if (appData['enable-context-menu'] === true) {
-            browser.contextMenus.create({
-                id: 'secure_download',
-                title: 'Secure Download',
-                type: 'normal',
-                contexts: ['link'],
-            });
-
-            browser.contextMenus.onClicked.addListener((info, tab) => {
-                if (info.menuItemId === 'secure_download') {
-                    downloader.addDownload(info.linkUrl);
-                }
-            });
-        } else {
-            browser.contextMenus.remove('secure_download');
-        }
-        // send user to options page if not logged in
-        if (!appData.apiKey) {
-            //browser.runtime.openOptionsPage();
-        }
-    });
-
-    // browser.browserAction.setBadgeBackgroundColor({ color: [0, 99, 255, 230] });
-})
-
-
+    if (store['enable-context-menu'] === true) {
+        addContextMenuOption()
+    } else {
+        removeContextMenuOption()
+    }
+    // send user to options page if not logged in
+    if (!store.apiKey) {
+        //browser.runtime.openOptionsPage();
+    }
+});
 
 //
 // INTERCEPT DOWNLOADS
@@ -51,8 +25,8 @@ browser.runtime.onInstalled.addListener(() => {
 browser.downloads.onCreated.addListener( downloadItem => {
     console.log('downloads.onCreated', downloadItem)
 
-    storage.appDataAsync().then(appData => {
-        if (appData['catch-all-downloads']  === true) {
+    storage.appDataAsync().then(store => {
+        if (store['catch-all-downloads']  === true) {
 
             if(downloader.wasConfirmedDirect(downloadItem.url)){
                 return;
@@ -93,14 +67,33 @@ browser.runtime.onMessage.addListener((request) => {
 
 // DETERMINE FILENAME
 browser.downloads.onDeterminingFilename.addListener(function (item, suggest) {
-   console.log("onDeterminingFilename", item);
-   storage.appDataAsync().then(appData => {
+    console.log('onDeterminingFilename', item);
+    storage.appDataAsync().then(appData => {
         if (appData['catch-all-downloads']  === true) {
             downloader.onDeterminingFilename(item.url, item.filename)
         }
-   })
+    })
+    return true;
 });
 // CATCH COMPLETED DOWNLOAD
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE
-browser.downloads.onErased.addListener(function (downloadId) { });
+// browser.downloads.onErased.addListener(function (downloadId) { });
+
+function addContextMenuOption() {
+    browser.contextMenus.create({
+        id: 'secure_download',
+        title: 'Secure Download',
+        type: 'normal',
+        contexts: ['link'],
+    });
+
+    browser.contextMenus.onClicked.addListener((info, tab) => {
+        if (info.menuItemId === 'secure_download') {
+            downloader.addDownload(info.linkUrl);
+        }
+    });
+}
+function removeContextMenuOption() {
+    browser.contextMenus.remove('secure_download');
+}
