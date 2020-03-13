@@ -5,14 +5,26 @@ const browser = require('webextension-polyfill');
 
 storage.onChange().subscribe(store => {
 
-    if (store['enable-context-menu'] === true) {
-        addContextMenuOption()
+    if (store['enable-context-menu'] ) {
+        browser.contextMenus.create({
+            id: 'secure_download',
+            title: 'Secure Download',
+            type: 'normal',
+            contexts: ['link'],
+        });
     } else {
-        removeContextMenuOption()
+        browser.contextMenus.remove('secure_download');
     }
     // send user to options page if not logged in
     if (!store.apiKey) {
         //browser.runtime.openOptionsPage();
+    }
+});
+
+// listen for clicks to contextMenu
+browser.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'secure_download') {
+        downloader.addDownload(info.linkUrl);
     }
 });
 
@@ -79,21 +91,3 @@ browser.downloads.onDeterminingFilename.addListener(function (item, suggest) {
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE
 // browser.downloads.onErased.addListener(function (downloadId) { });
-
-function addContextMenuOption() {
-    browser.contextMenus.create({
-        id: 'secure_download',
-        title: 'Secure Download',
-        type: 'normal',
-        contexts: ['link'],
-    });
-
-    browser.contextMenus.onClicked.addListener((info, tab) => {
-        if (info.menuItemId === 'secure_download') {
-            downloader.addDownload(info.linkUrl);
-        }
-    });
-}
-function removeContextMenuOption() {
-    browser.contextMenus.remove('secure_download');
-}
