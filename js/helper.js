@@ -186,7 +186,6 @@ function arrayFrom(seq) {
 };
 
 
-// TODO: what is this for?
 function sendAnimMsg(msg) {
 	browser.tabs.query({active: true}).then( tabs => {
 		tabs.forEach(tab => {
