@@ -1,6 +1,7 @@
 import { filewall } from './filewall.js'
 import { BehaviorSubject } from 'rxjs';
 import { storage } from './storage.js';
+import { uuid } from 'uuidv4'
 
 const browser = require('webextension-polyfill');
 
@@ -42,6 +43,8 @@ class Downloader {
                     // const [ message, ...rest ] = this.messages
                     // this.messages = rest
                 })
+            } else if (port.name === 'dialog') {
+                // listen for messages from the dialog
             }
 
         })
@@ -66,12 +69,8 @@ class Downloader {
     }
 
     addCatchedDownload(downloadUrl){
-        function uuidv4() {
-         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-            });}
-        var download_id = uuidv4();
+        console.log('addCatchedDownload', downloadUrl)
+        var download_id = uuid();
         var dialogurl = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id;
         this.catchedDownloads[download_id] = downloadUrl;
         chrome.tabs.query({active: true}, function (tabs) {
@@ -91,7 +90,7 @@ class Downloader {
     }
 
     wasConfirmedDirect(downloadUrl){
-        if(this.wasConfirmedDirectUrls[downloadUrl] === true){
+        if (this.wasConfirmedDirectUrls[downloadUrl] === true) {
             delete this.wasConfirmedDirectUrls[downloadUrl];
             return true;
         }
@@ -118,6 +117,7 @@ class Downloader {
     }
 
     onDeterminingFilename(url, filename){
+        console.log('onDeterminingFilename', url, filename)
         // todo use this filename if needed
     }
 
@@ -197,7 +197,7 @@ class Downloader {
         this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
-    removeDownload(downloadId) { }
+    // removeDownload(downloadId) { }
     updateStatus(downloadItem) {
         const {id, status, progress} = downloadItem
         if (progress) {
