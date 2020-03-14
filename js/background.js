@@ -40,7 +40,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
     storage.appDataAsync().then(store => {
         if (store['catch-all-downloads']  === true) {
 
-            if(downloader.wasConfirmedDirect(downloadItem.url)){
+            if (downloader.wasConfirmedDirect(downloadItem.url)){
                 return;
             }
 
@@ -49,14 +49,14 @@ browser.downloads.onCreated.addListener( downloadItem => {
                 "https://eu.filewall.io",
                 "https://us.filewall.io",
                 "http://127.0.0.1",
-                "chrome-extension://",
+                "chrome-extension://"
             ];
+            const { origin } = new URL(downloadItem.url)
             for (const baseUrl of baseurls) {
-                if (downloadItem.url.startsWith(baseUrl)) {
-                    return;
+                    if ( origin === baseUrl ) {
+                        return;
                 }
             }
-
             // cancel existing download
             browser.downloads.cancel(downloadItem.id);
             if (downloadItem.state === "complete") {
@@ -78,15 +78,15 @@ browser.runtime.onMessage.addListener((request) => {
 });
 
 // DETERMINE FILENAME
-browser.downloads.onDeterminingFilename.addListener(function (item, suggest) {
-    console.log('onDeterminingFilename', item);
-    storage.appDataAsync().then(appData => {
-        if (appData['catch-all-downloads']  === true) {
-            downloader.onDeterminingFilename(item.url, item.filename)
-        }
-    })
-    return true;
-});
+// browser.downloads.onDeterminingFilename.addListener(function (item, suggest) {
+//     console.log('onDeterminingFilename', item);
+//     storage.appDataAsync().then(appData => {
+//         if (appData['catch-all-downloads']  === true) {
+//             downloader.onDeterminingFilename(item.url, item.filename)
+//         }
+//     })
+//     return true;
+// });
 // CATCH COMPLETED DOWNLOAD
 browser.downloads.onChanged.addListener(function (downloadDelta) { });
 // CATCH ERASE
