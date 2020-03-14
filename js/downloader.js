@@ -75,7 +75,12 @@ class Downloader {
         this.catchedDownloads[download_id] = downloadUrl;
         this.sendMessageToActiveTab({target: "dialog", dialog_url: dialogurl, action: "show", download_id });
         setTimeout( () => {
-            this.sendMessageToActiveTab({target: "dialog", action: "hide", download_id});
+            // todo this is not clever, whats the better way to close the dialog?
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (tab) {
+                    chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", download_id });
+                })
+            });
             delete this.catchedDownloads[download_id];
         }, 60 * 1000); // hide or timeout after 60 sec.
     }
