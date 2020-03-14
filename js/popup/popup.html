@@ -30,7 +30,7 @@
   <div class="flex-column extension-popup">
 
     <div class="popup__options flex-column" id="popup__options" style="display:none;">
-      <div class="flex-row" style="padding-bottom: 20px">
+      <div class="flex-row" style="    padding-bottom: 10px;margin: 15px;">
         <div>
           <div>Logged in as <b class="usernameSlug"></b></div>
         </div>
@@ -38,7 +38,7 @@
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="float: right" id="logout">Logout</button>
         </div>
       </div>
-      <div class="flex-column">
+      <div class="flex-column" style="    margin: 15px;">
           <div class="option">
             <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enable-context-menu">
               <input type="checkbox" id="enable-context-menu" name="enable-context-menu" class="mdl-switch__input">
@@ -54,26 +54,128 @@
       </div>
     </div>
 
-    <!-- for simple designing
-    <div class="flex__fill flex-column flex-column__flex-start" id="items_example">
-      <div class="download-item-grid download-item" id="download-item-example">
-          <div class="download-item__icon fa-stack ">
-              <i class="fa fa-file-o fa-stack-2x fa-2x" aria-hidden="true"></i>
-              <i class="fa fa-question fa-stack-1x" aria-hidden="true"></i>
+  <!-- Example styled download items for all situations -->
+  <div style="display:none;">
+
+          <!-- Download active -->
+      <div class="download-item-grid download-item" id="download-item-1">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
           </div>
-          <div class="download-item__filename center">pdf.pdf</div>
-          <div class="download-item__progress center">
-              <div class="mdl-progress mdl-progress__indeterminate mdl-js-progress is-upgraded" style="width:50%;" data-upgraded=",MaterialProgress">
-                <div class="progressbar bar bar1 " style="width: 0%;"></div>
-                <div class="bufferbar bar bar2" style="width: 100%;"></div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div>Downloading - 4.3 MB/s - 84.9 MB of 426 MB</div>
+              <div class="mdl-progress mdl-js-progress" style="width:40%;"></div>
+          </div>
+          <div class="download-item__close">
+              <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+          </div>
+      </div>
+
+
+      <!-- too many parallel processes, trying again later-->
+      <div class="download-item-grid download-item" id="download-item-2">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+            <div>Waiting - Upgrade your plan to process more files in parallel</div>
+            <div class="mdl-progress mdl-js-progress" style="width:100%;"></div>
+          </div>
+          <div class="download-item__close">
+              <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+          </div>
+      </div>
+
+
+      <!-- Uploading to filewall.io -->
+      <div class="download-item-grid download-item" id="download-item-3">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div>Uploading to filewall.io</div>
+              <div class="mdl-progress mdl-progress__indeterminate mdl-js-progress" style="width:100%;"></div>
+          </div>
+      </div>
+
+      <!-- Processing at filewall.io -->
+      <div class="download-item-grid download-item" id="download-item-4">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div>Processing at filewall.io</div>
+              <div class="mdl-progress mdl-progress__indeterminate mdl-js-progress" style="width:100%;"></div>
+          </div>
+      </div>
+
+      <!-- File could not be converted, aka status field in /api/status is failed and error is "processing_failed" -->
+      <div class="download-item-grid download-item" id="download-item-5">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div>File could not be converted into secure format, sorry</div>
+              <div class="mdl-progress  mdl-js-progress" style="width:100%;">
+                <div class="progressbar bar bar1" style="width: 0%;"></div>
+                <div class="bufferbar bar bar2" style="width: 100%;background-image: linear-gradient(0,#fff3cd ,#fff3cd) !important; z-index:1"></div> <!-- TODO -->
                 <div class="auxbar bar bar3" style="width: 0%;"></div>
+
               </div>
           </div>
           <div class="download-item__close">
-              <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
+              <i class="fa fa-times fa-2x" aria-hidden="true"></i>
           </div>
       </div>
-    </div>-->
+
+      <!-- File could not be converted,because payment is required -->
+      <div class="download-item-grid download-item" id="download-item-6">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div>Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade</div> <!-- TODO FIX LINK -->
+              <div class="mdl-progress  mdl-js-progress" style="width:100%;">
+                <div class="progressbar bar bar1" style="width: 0%;"></div>
+                <div class="bufferbar bar bar2" style="width: 100%;background-image: linear-gradient(0,#ffc107 ,#ffc107) !important; z-index:1"></div> <!--TODO  -->
+                <div class="auxbar bar bar3" style="width: 0%;"></div>
+
+              </div>
+          </div>
+          <div class="download-item__close">
+              <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+          </div>
+      </div>
+
+      <!-- File could not be converted,because some other error has occured-->
+      <div class="download-item-grid download-item" id="download-item-7">
+          <div class="download-item__icon">
+              <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="download-item__filename "><a>some.doc</a></div>
+          <div class="download-item__progress ">
+              <div> An error occured: foo_bar, try again later  </div> <!-- TODO replace foo_bar with error from json response -->
+              <div class="mdl-progress  mdl-js-progress" style="width:100%;">
+                <div class="progressbar bar bar1" style="width: 0%;"></div>
+                <div class="bufferbar bar bar2" style="width: 100%;background-image: linear-gradient(0,#ffc107 ,#ffc107) !important; z-index:1"></div> <!--TODO -->
+                <div class="auxbar bar bar3" style="width: 0%;"></div>
+
+              </div>
+          </div>
+          <div class="download-item__close">
+              <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+          </div>
+      </div>
+
+
+
+</div>
 
     <div class="message flex__fill" id="message" style="display: none;">
       <!-- message -->
@@ -129,8 +231,8 @@
       <!-- downloadItems -->
     </div>
 
-    <div id="popup__options_back" class="flex-row flex__fill" style="position: absolute;bottom: 0px;width: 100%; display:none">
-      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="width:100%" id="back" data-upgraded=",MaterialButton,MaterialRipple">BACK</button>
+    <div id="popup__options_back" class="flex-row flex__fill" style="bottom: 0px;width: 100%;padding: 5px;display: block;">
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="width: 100%;background-color: white;" id="back" data-upgraded=",MaterialButton,MaterialRipple">BACK</button>
     </div>
 
     <div class="popup__bottom flex-column" id="popup__bottom">

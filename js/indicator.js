@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(function (message) {
 
 function showDialog(message){
 	if(message.action === "hide"){
-		var el = document.getElementById("filewallio_dialog_" + message.download_id);
+		var el = document.getElementById("filewallio_dialog_" + message.dialog_id);
 		if(el !== null){el.remove()}
 	}
 	if(message.action === "show"){
@@ -37,7 +37,7 @@ function showDialog(message){
 				<iframe class="fwiodli_iframe" src="`+message.dialog_url+`"></iframe>
 			`; // TODO does the iframe need more protection?
 		var maindiv = document.createElement('div');
-		maindiv.id = "filewallio_dialog_" + message.download_id;
+		maindiv.id = "filewallio_dialog_" + message.dialog_id;
 		maindiv.innerHTML = content;
 		document.body.appendChild(maindiv);
 	}
