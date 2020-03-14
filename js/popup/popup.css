@@ -5,11 +5,7 @@
 }
 .extension-popup {
     min-width: 600px;
-    #min-height: 300px;
     max-width: 800px;
-    #max-height: 500px;
-    background-color: #ededed;
-
 }
 .flex-column {
     display: flex;
