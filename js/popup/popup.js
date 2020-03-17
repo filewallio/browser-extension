@@ -115,41 +115,55 @@ window.addEventListener('load', function () {
         const { downloadUrl, filename, id, status, progress } = downloadItem;
         let percentLoaded = '~';
         let transferRate = '';
+        let transferRate_txt = '';
         let status_class = '';
         if (progress) {
-            const { loaded, total, rate } = progress
-            percentLoaded = Math.round(100 * (loaded / total))
+            const { loaded, total, rate } = progress;
+            percentLoaded = Math.round(100 * (loaded / total));
             if (rate) {
-                transferRate = ` - ${Math.round( (rate * 1000) / 1024 )} KB/s`
+                transferRate = ` - ${Math.round( (rate * 1000) / 1024 )} KB/s`;
+                if(rate > 1024){ transferRate = ` - ${Math.round( (rate * 1000) / 1024 / 1024 )} MB/s`;}
             }
-        }
-        const stateOrder = {
-            'downloading-unsafe': 10,
-            'progress': 20,
-            'authorizing': 30,
-            'uploading': 50,
-            'processing': 75,
-            'waiting': 75,
-            'finished': 100
+            let loaded_str = "";
+            if(loaded > 1024){ loaded_str = loaded/1024 + " KB";}
+            if(loaded > 1024*1024){ loaded_str = (loaded/1024/1024) + " MB";}
+            let total_str = "";
+            if(total > 1024){ total_str = (total/1024) + " KB";}
+            if(total > 1024*1024){ total_str = (total/1024/1024) + " MB";}
+            transferRate_txt = loaded_str + " of " + total_str;
         }
 
         if(status === 'processing' || status === 'waiting'){
-            status_class = 'mdl-progress__indeterminate'
+            status_class += ' mdl-progress__indeterminate ';
         }
 
+        let status_string = '';
+        let cancelclose_div = `
+            <div class="download-item__close">
+                <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+            </div>`;
+        if(status === "downloading-unsafe"){ status_string = "Downloading - " + transferRate + " - " + transferRate_txt; }
+        if(status === "authorizing")       { status_string = "Authorizing"; cancelclose_div = '';}
+        if(status === "payment-required")  { status_string = "Plan limit reached! Visit <a href='https://filewall.io'>filewall.io</a> to upgrade"; status_class += " bufferbar_error ";} // TODO status payment-required does not exist yet
+        if(status === "waiting-for-upload"){ status_string = "Waiting - Upgrade your plan to process more files in parallel";}  // TODO waiting-for-upload does not exist yet, catch in authorize
+        if(status === "uploading")         { status_string = "Uploading to <a>filewall.io<a>";cancelclose_div = '';}
+        if(status === "processing")        { status_string = "Processing to <a>filewall.io<a>";cancelclose_div = '';}
+        if(status === "finished")          { status_string = "";} // finished download are automatically removed and dont need text
+        if(status === "unconvertable")     { status_string = "File could not be converted into secure format, sorry";  status_class += " bufferbar_warning ";} // TODO status unconvertable does not exist yet
+        if(status === "failed")            { status_string = "An error occured, try again later";  status_class += " bufferbar_error ";}
+
         return html`
-            <div class="download-item-grid download-item" id="download-item-${id}">
-                <div class="download-item__icon">
-                    <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
-                </div>
-                <div class="download-item__filename center">${filename}${transferRate}</div>
-                <div class="download-item__progress center">
-                    <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
-                </div>
-                <div class="download-item__close">
-                    <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
-                </div>
-            </div>
+          <div class="download-item-grid download-item" id="download-item-${id}">
+              <div class="download-item__icon">
+                  <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
+              </div>
+              <div class="download-item__filename "><a>${filename}</a></div>
+              <div class="download-item__progress ">
+                  <div>${status_string}</div>
+                  <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
+              </div>
+              ${cancelclose_div}
+          </div>
         `
     }
     function upgradeComponents() {

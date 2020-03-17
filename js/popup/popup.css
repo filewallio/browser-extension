@@ -153,3 +153,12 @@ div.message {
 .mdl-switch.is-checked .mdl-switch__track {
     background: #9dc800;
 }
+
+.bufferbar_warning > .bufferbar {
+    width: 100%;
+    background-image: linear-gradient(0,#fff3cd ,#fff3cd) !important;
+}
+.bufferbar_error > .bufferbar {
+    width: 100%;
+    background-image: linear-gradient(0,#ffc107 ,#ffc107) !important;
+}
