@@ -3,6 +3,12 @@
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
+
+
+.popup_html {
+    height: fit-content;
+}
+
 .extension-popup {
     min-width: 600px;
     max-width: 800px;
@@ -112,7 +118,6 @@ div.message {
      border-bottom: 1px solid lightgray;
 }
 .popup__bottom {
-    position: fixed;
     background-color: white;
     bottom: 0px;
     text-align: center;
