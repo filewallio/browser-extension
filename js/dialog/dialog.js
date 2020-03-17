@@ -1,8 +1,8 @@
 import { login } from '../authentication'
 import { storage } from '../storage'
 
-const $ = document.querySelector.bind(document)
-const $s = document.querySelectorAll.bind(document)
+const $ = document.querySelector.bind(document);
+const $s = document.querySelectorAll.bind(document);
 const browser = require('webextension-polyfill');
 
 window.addEventListener('load', function () {
@@ -19,11 +19,10 @@ window.addEventListener('load', function () {
         e.preventDefault();
         chrome.runtime.sendMessage({download_id: download_id, action: "filewall"});
     });
+
     $('#fwiodli_header_close').addEventListener('click', e => {
         e.preventDefault();
         chrome.runtime.sendMessage({download_id: download_id, action: "close"});
     });
-
-
 
 });
