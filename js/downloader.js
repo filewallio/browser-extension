@@ -112,10 +112,12 @@ class Downloader {
         // todo use this filename if needed
     }
 
-    addDownload(downloadUrl) {
+    addDownload(downloadUrl, filename) {
         // take text after last '/' as filename
         // TODO GET FILENAME FROM CONTENT DISPOSITION IN RESPONSE, if filename is not yet know via onDeterminingFilename
-        const filename = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+        if (!filename) {
+            filename = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+        }
 
         let downloadItem = {
             downloadUrl,
@@ -128,11 +130,9 @@ class Downloader {
             })
         });
 
-        const downloadItemSubscription = filewall.process(downloadItem).pipe(
-                // tap( x => this.updateStatus(x) )
-            ).subscribe( downloadItem => {
+        const downloadItemSubscription = filewall.process(downloadItem).subscribe( downloadItem => {
                 this.updateStatus(downloadItem)
-                const {status, filename, pollStatus} = downloadItem
+                const {status, filename, pollStatus} = downloadItem;
                 this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
                 
                 if (status === 'finished') {
