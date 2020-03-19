@@ -102,10 +102,14 @@ class Filewall {
                 }
             })
             .then( data => {
-                obs.next(data)
-                obs.complete()
+                obs.next(data);
+                obs.complete();
             })
-            .catch( data => obs.error(data) )
+            .catch( error => {
+                const { response } = error
+                obs.error(response);
+                obs.complete();
+            } )
         })
     }
     downloadWithProgress(downloadItem) {
@@ -130,10 +134,14 @@ class Filewall {
             })
             .then( response => new Blob([response.data], {type: response.headers['content-type']}))
             .then( data => {
-                obs.next(data)
-                obs.complete()
+                obs.next(data);
+                obs.complete();
             } )
-            .catch( error => obs.error(error) )
+            .catch( error => {
+                const { response } = error
+                obs.error(response);
+                obs.complete();
+            } )
         })
     }
     statusCheck(downloadItem) {

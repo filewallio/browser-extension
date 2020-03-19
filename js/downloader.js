@@ -167,7 +167,12 @@ class Downloader {
                     // tell user it failed and to try again
                     this.message$.next('failed')
                 }
-                this.removeAciveDownload(downloadItem)
+                this.updateStatus({
+                    ...downloadItem,
+                    error
+                })
+                this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
+                // this.removeAciveDownload(downloadItem)
             })
         downloadItem = {
             ...downloadItem,
@@ -189,7 +194,7 @@ class Downloader {
     }
     // removeDownload(downloadId) { }
     updateStatus(downloadItem) {
-        const {id, status, progress} = downloadItem
+        const {id, status, progress, error} = downloadItem
         if (progress) {
             const { loaded, total, rate } = progress
             const percent = loaded && total && Math.round(100 * (loaded / total))
@@ -201,6 +206,7 @@ class Downloader {
         if (item) {
             item.status = status
             item.progress = progress
+            item.error = error
         }
     }
     sanitizeItem(item) {

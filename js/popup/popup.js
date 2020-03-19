@@ -112,7 +112,7 @@ window.addEventListener('load', function () {
 
     function buildDownloadItemView(downloadItem) {
         
-        const { downloadUrl, filename, id, status, progress } = downloadItem;
+        const { downloadUrl, filename, id, status, progress, error } = downloadItem;
         let percentLoaded = '~';
         let transferRate = '';
         let loadedHumanReadable = '';
@@ -152,7 +152,7 @@ window.addEventListener('load', function () {
                 </div>
                 <div class="download-item__info-section">
                     <div class="download-item__filename">${filename}</div>
-                    <div class="download-item__status">${ getStatusText(status, transferRate, loadedHumanReadable, totalHumanReadable) }</div>
+                    <div class="download-item__status">${ getStatusText({status, transferRate, loadedHumanReadable, totalHumanReadable, error}) }</div>
                     <div class="download-item__progress">
                         <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
                     </div>
@@ -163,7 +163,8 @@ window.addEventListener('load', function () {
             </div>
         `
     }
-    function getStatusText(status, transferRate, loadedHumanReadable, totalHumanReadable) {
+    function getStatusText(param) {
+        const {status, transferRate, loadedHumanReadable, totalHumanReadable, error} = param;
         if (status === 'downloading-unsafe') {
             console.log('transferRate', transferRate, transferRate.length)
             return `Downloading${
@@ -175,11 +176,13 @@ window.addEventListener('load', function () {
                 transferRate && ` - ${transferRate}`
             } - ${loadedHumanReadable} of ${totalHumanReadable}`;
         } else if (status === 'processing') {
-            return `Processing at filewall.io`;
+            return 'Processing at filewall.io';
         } else if (status === 'waiting') {
-            return `Waiting - Upgrade your plan to process more files in parallel`;
-        } else if (status === 'error') {
-            return getErrorMessageText()
+            return 'Waiting - Upgrade your plan to process more files in parallel';
+        } else if (status === 'failed' && error === 'processing_failed') {
+            return 'File could not be converted into secure format, sorry'
+        } else if (error) {
+            return getErrorMessageText(error)
         } else {
             return '';
         }
@@ -275,12 +278,17 @@ window.addEventListener('load', function () {
             },
             'payment_required': {
                 header: 'Error',
-                message: 'Plan limit reached! Visit filewall.io to upgrade.'
+                message: 'Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade.'
             },
             'failed': {
                 header: 'Failure',
                 message: 'We failed to process your request. Please try again later.'
             }
+        }
+        if (messageMap[errorCode]) {
+            return messageMap[errorCode].message;
+        } else {
+            return `An error occured: ${errorCode}, try again later`;
         }
     }
 
