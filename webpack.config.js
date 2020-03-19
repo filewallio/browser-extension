@@ -49,7 +49,7 @@ module.exports = env => ({
   target: 'web',
   node: false,
   mode: 'development',
-  devtool: 'cheap-source-map',
+  devtool: 'source-map',
 
   entry: {
     'background/background': './js/background.js',
