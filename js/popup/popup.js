@@ -1,6 +1,8 @@
 import { login } from '../authentication'
 import { storage } from '../storage'
 import { html } from 'common-tags'
+// import { bytes } from 'bytes';
+const bytes = require('bytes')
 
 const $ = document.querySelector.bind(document)
 const $s = document.querySelectorAll.bind(document)
@@ -98,8 +100,6 @@ window.addEventListener('load', function () {
         })
     })
 
-
-
     function renderDownloadItems(activeDownloads) {
         if (!activeDownloads) return
         // build status
@@ -115,12 +115,20 @@ window.addEventListener('load', function () {
         const { downloadUrl, filename, id, status, progress } = downloadItem;
         let percentLoaded = '~';
         let transferRate = '';
+        let loadedHumanReadable = '';
+        let totalHumanReadable = '';
         let status_class = '';
         if (progress) {
             const { loaded, total, rate } = progress
             percentLoaded = Math.round(100 * (loaded / total))
             if (rate) {
-                transferRate = ` - ${Math.round( (rate * 1000) / 1024 )} KB/s`
+                transferRate = `${bytes(rate, {unitsSeparator: ' ', decimalPlaces: 0})}/s`
+            }
+            if (loaded) {
+                loadedHumanReadable = bytes(loaded, {unitsSeparator: ' ', decimalPlaces: 1})
+            }
+            if (total) {
+                totalHumanReadable = bytes(total, {unitsSeparator: ' ', decimalPlaces: 0})
             }
         }
         const stateOrder = {
@@ -142,15 +150,39 @@ window.addEventListener('load', function () {
                 <div class="download-item__icon">
                     <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
                 </div>
-                <div class="download-item__filename center">${filename}${transferRate}</div>
-                <div class="download-item__progress center">
-                    <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
+                <div class="download-item__info-section">
+                    <div class="download-item__filename">${filename}</div>
+                    <div class="download-item__status">${ getStatusText(status, transferRate, loadedHumanReadable, totalHumanReadable) }</div>
+                    <div class="download-item__progress">
+                        <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
+                    </div>
                 </div>
                 <div class="download-item__close">
-                    <i class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
+                    <i class="fa fa-times fa-2x" aria-hidden="true"></i>
                 </div>
             </div>
         `
+    }
+    function getStatusText(status, transferRate, loadedHumanReadable, totalHumanReadable) {
+        if (status === 'downloading-unsafe') {
+            console.log('transferRate', transferRate, transferRate.length)
+            return `Downloading${
+                transferRate && ` - ${transferRate}`
+            } - ${loadedHumanReadable} of ${totalHumanReadable}`;
+        } else if (status === 'uploading') {
+            console.log('transferRate', transferRate, transferRate.length)
+            return `Uploading${
+                transferRate && ` - ${transferRate}`
+            } - ${loadedHumanReadable} of ${totalHumanReadable}`;
+        } else if (status === 'processing') {
+            return `Processing at filewall.io`;
+        } else if (status === 'waiting') {
+            return `Waiting - Upgrade your plan to process more files in parallel`;
+        } else if (status === 'error') {
+            return getErrorMessageText()
+        } else {
+            return '';
+        }
     }
     function upgradeComponents() {
 
@@ -229,6 +261,26 @@ window.addEventListener('load', function () {
         } else {
             if (input.attributes['type'].value === 'range') input.MaterialSlider && input.MaterialSlider.change(value);
             else input.value = value;
+        }
+    }
+    function getErrorMessageText(errorCode) {
+        const messageMap = {
+            'too_many_requests': {
+                header: 'Error',
+                message: 'Slow down, you have initiated too many downloads.'
+            },
+            'auth_failed': {
+                header: 'Error',
+                message: 'Authorization failed please login and try again.'
+            },
+            'payment_required': {
+                header: 'Error',
+                message: 'Plan limit reached! Visit filewall.io to upgrade.'
+            },
+            'failed': {
+                header: 'Failure',
+                message: 'We failed to process your request. Please try again later.'
+            }
         }
     }
 
