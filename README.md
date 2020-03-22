@@ -1,5 +1,5 @@
-# filewall.io-chrome-extension
-filewall.io chrome extension
+# filewall.io-browser-extension
+filewall.io browser extension for Chrome and Firefox
 
 # Install dependencies
 Make sure you install [npm](https://www.npmjs.com/) version 5.2.0 or greater

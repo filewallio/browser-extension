@@ -134,6 +134,7 @@ window.addEventListener('load', function () {
                     `}
                 </div>
             </div>
+
         `
     }
     function buildStateConfig({status, error, progress}) {
