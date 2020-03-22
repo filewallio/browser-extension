@@ -1,5 +1,5 @@
 import { storage } from '../storage.js';
-import { environment } from '../environment.js'
+import { environment } from '../environment'
 
 const $ = document.querySelector.bind(document);
 const $s = document.querySelectorAll.bind(document);

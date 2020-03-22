@@ -1,5 +1,5 @@
 import { storage } from './storage.js'
-import { environment } from './environment.js'
+import { environment } from './environment'
 
 export async function login(username, password) {
     let formData = new FormData();

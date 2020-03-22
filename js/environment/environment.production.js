@@ -1,4 +1,3 @@
-
 class Environment {
     constructor() {
         this.baseUrl = 'https://filewall.io'

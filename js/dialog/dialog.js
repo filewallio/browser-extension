@@ -1,4 +1,3 @@
-import { login } from '../authentication'
 import { storage } from '../storage'
 
 const $ = document.querySelector.bind(document);
