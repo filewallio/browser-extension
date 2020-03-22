@@ -152,21 +152,21 @@ class Downloader {
             }, response => {
                 console.log('downloadItemSubscription error', response)
                 const { error, status } = response
-                if (error === 'too_many_requests') {
-                    // tell user to slow down
-                    this.message$.next('too_many_requests')
+                // if (error === 'too_many_requests') {
+                //     // tell user to slow down
+                //     this.message$.next('too_many_requests')
 
-                } else if (error === 'auth_failed') {
-                    // show error to user
-                    this.message$.next('auth_failed')
-                    // sent user to login screen
-                } else if (error === 'payment_required') {
-                    // send user to payment page
-                    this.message$.next('payment_required')
-                } else if (status === 'failed') {
-                    // tell user it failed and to try again
-                    this.message$.next('failed')
-                }
+                // } else if (error === 'auth_failed') {
+                //     // show error to user
+                //     this.message$.next('auth_failed')
+                //     // sent user to login screen
+                // } else if (error === 'payment_required') {
+                //     // send user to payment page
+                //     this.message$.next('payment_required')
+                // } else if (status === 'failed') {
+                //     // tell user it failed and to try again
+                //     this.message$.next('failed')
+                // }
                 this.updateStatus({
                     ...downloadItem,
                     error
