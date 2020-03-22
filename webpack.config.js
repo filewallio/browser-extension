@@ -48,7 +48,7 @@ function buildManifest(env) {
 module.exports = env => ({
   target: 'web',
   node: false,
-  mode: 'development',
+  mode: env.production ? 'production' : 'development',
   devtool: 'source-map',
 
   entry: {
@@ -62,9 +62,9 @@ module.exports = env => ({
     path: dest_dir,
     filename: '[name].js'
   },
-
   plugins: [
     new GenerateJsonPlugin('manifest.json', buildManifest(env), null, 2),
+    // new webpack.NormalModuleReplacementPlugin( /production\.js/, './environment.development.js' ),
     new CopyWebpackPlugin([
       { from: 'images/*', to: 'images', flatten: true },
       { from: 'fonts/*', to: 'fonts', flatten: true },
