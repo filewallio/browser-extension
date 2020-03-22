@@ -1,5 +1,5 @@
 import { storage } from './storage.js'
-import { environment } from './environment.js'
+import { environment } from './environment'
 import { Subject, interval, Observable } from 'rxjs'
 import { tap, mergeMap, filter, take } from 'rxjs/operators'
 
@@ -19,15 +19,6 @@ class Filewall {
                 downloadItem = {...downloadItem, status: 'authorizing'}
                 subject.next({...downloadItem})
                 this.authorize()
-                    .then( response => {
-                        if (response.error) {
-                            subject.error(response)
-                            subject.complete()
-                            return Promise().reject(response)
-                        } else {
-                            return response
-                        }
-                    })
                     .then( uploadAuth => downloadItem = { ...downloadItem, uploadAuth } )
                     .then( () => {
                         downloadItem = {...downloadItem, status: 'uploading'}
@@ -45,21 +36,29 @@ class Filewall {
                                     filter( x => x.status !== lastStatus ),
                                     tap( x => lastStatus = x.status ),
                                     tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
-                                ).subscribe( ({status}) => {
+                                ).subscribe( pollStatus => {
+                                    const {status, error} = pollStatus
                                     if (status === 'finished') {
                                         intervalSubscription.unsubscribe()
                                         subject.next({...downloadItem, status: 'finished'})
                                         subject.complete()
                                     } else if (status === 'failed') {
                                         intervalSubscription.unsubscribe()
-                                        subject.error({...downloadItem, status: 'failed'})
+                                        subject.error({...downloadItem, status, error})
                                         subject.complete()
                                     } else {
                                         subject.next({...downloadItem, status})
                                     }
                                 })
                             }
+                        }, error => {
+                            subject.error({...downloadItem, error})
+                            subject.complete()
                         })
+                    })
+                    .catch( response => {
+                        subject.error(response)
+                        subject.complete()
                     })
             }
         },
@@ -68,48 +67,55 @@ class Filewall {
         return subject
     }
 
-    authorize() {
-        return fetch(`${environment.baseUrl}/api/authorize`, {
+    async authorize() {
+        const response = await fetch(`${environment.baseUrl}/api/authorize`, {
             method: 'POST',
             headers: {
                 apiKey: storage.appData.apiKey
             }
         })
-            .then( r => r.json() )
+        const responseJson = await response.json()
+        const { error } = responseJson
+        if (error) {
+            console.log('authorize:error', {error})
+            throw { error }
+        }
+        return responseJson;
     }
     uploadWithProgress(downloadItem) {
-        return new Observable( obs => {
-            let firstProgress
-            axios({
-                method: 'POST',
-                baseURL: `${downloadItem.uploadAuth.links.upload}`,
-                data: downloadItem.blob,
-                onUploadProgress: progress => {
-                    if (firstProgress) {
-                        const { timeStamp: firstTimeStamp } = firstProgress
-                        const { loaded, total, timeStamp } = progress
-                        const rate = loaded / (timeStamp - firstTimeStamp)
-                        progress.rate = rate
-                        obs.next(progress)
-                    } else {
-                        obs.next(progress)
-                        firstProgress = progress
+        return new Observable(async obs => {
+            try {
+                let firstProgress;
+                const response = await axios({
+                    method: 'POST',
+                    baseURL: `${downloadItem.uploadAuth.links.upload}`,
+                    data: downloadItem.blob,
+                    headers: {
+                        filename: downloadItem.filename,
+                        'content-type': downloadItem.blob.type
+                    },
+                    onUploadProgress: progress => {
+                        if (firstProgress) {
+                            const { timeStamp: firstTimeStamp } = firstProgress
+                            const { loaded, total, timeStamp } = progress
+                            const rate = loaded / (timeStamp - firstTimeStamp)
+                            progress.rate = rate
+                            obs.next(progress)
+                        } else {
+                            obs.next(progress)
+                            firstProgress = progress
+                        }
                     }
-                },
-                headers: {
-                    filename: downloadItem.filename,
-                    'content-type': downloadItem.blob.type
-                }
-            })
-            .then( data => {
-                obs.next(data);
+                })
+                console.log('uploadWithProgress::success ')
+                obs.next(response);
                 obs.complete();
-            })
-            .catch( error => {
-                const { response } = error
-                obs.error(response);
+            } catch (axiosError) {
+                const { response: {data: {error}} } = axiosError
+                console.log('uploadWithProgress::error ', error)
+                obs.error(error);
                 obs.complete();
-            } )
+            }
         })
     }
     downloadWithProgress(downloadItem) {

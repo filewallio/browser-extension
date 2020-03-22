@@ -1,6 +1,6 @@
 import { login } from '../authentication'
 import { storage } from '../storage'
-import { html } from 'common-tags'
+import { html, oneLine } from 'common-tags'
 // import { bytes } from 'bytes';
 const bytes = require('bytes')
 
@@ -112,79 +112,132 @@ window.addEventListener('load', function () {
 
     function buildDownloadItemView(downloadItem) {
         
-        const { downloadUrl, filename, id, status, progress, error } = downloadItem;
-        let percentLoaded = '~';
-        let transferRate = '';
-        let loadedHumanReadable = '';
-        let totalHumanReadable = '';
-        let status_class = '';
-        if (progress) {
-            const { loaded, total, rate } = progress
-            percentLoaded = Math.round(100 * (loaded / total))
-            if (rate) {
-                transferRate = `${bytes(rate, {unitsSeparator: ' ', decimalPlaces: 0})}/s`
-            }
-            if (loaded) {
-                loadedHumanReadable = bytes(loaded, {unitsSeparator: ' ', decimalPlaces: 1})
-            }
-            if (total) {
-                totalHumanReadable = bytes(total, {unitsSeparator: ' ', decimalPlaces: 0})
-            }
-        }
-        const stateOrder = {
-            'downloading-unsafe': 10,
-            'progress': 20,
-            'authorizing': 30,
-            'uploading': 50,
-            'processing': 75,
-            'waiting': 75,
-            'finished': 100
-        }
-
-        if(status === 'processing' || status === 'waiting'){
-            status_class = 'mdl-progress__indeterminate'
-        }
+        const { filename, id, status, progress, error } = downloadItem;
+        const { messageText, progressBarState, showCloseButton } = buildStateConfig({status, error, progress})
+        const percentLoaded = calcPercentLoaded(progress) || 100
 
         return html`
-            <div class="download-item-grid download-item" id="download-item-${id}">
+            <div class="download-item" id="download-item-${id}">
                 <div class="download-item__icon">
                     <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
                 </div>
                 <div class="download-item__info-section">
                     <div class="download-item__filename">${filename}</div>
-                    <div class="download-item__status">${ getStatusText({status, transferRate, loadedHumanReadable, totalHumanReadable, error}) }</div>
+                    <div class="download-item__status">${messageText}</div>
                     <div class="download-item__progress">
-                        <div class="mdl-progress ${status_class} mdl-js-progress" style="width:${percentLoaded}%;"></div>
+                        <div class="mdl-progress ${progressBarState} mdl-js-progress" style="width:${percentLoaded}%;"></div>
                     </div>
                 </div>
                 <div class="download-item__close">
-                    <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+                    ${showCloseButton && html`
+                        <i class="fa fa-times fa-2x" aria-hidden="true"></i>
+                    `}
                 </div>
             </div>
         `
     }
-    function getStatusText(param) {
-        const {status, transferRate, loadedHumanReadable, totalHumanReadable, error} = param;
-        if (status === 'downloading-unsafe') {
-            console.log('transferRate', transferRate, transferRate.length)
-            return `Downloading${
-                transferRate && ` - ${transferRate}`
-            } - ${loadedHumanReadable} of ${totalHumanReadable}`;
-        } else if (status === 'uploading') {
-            console.log('transferRate', transferRate, transferRate.length)
-            return `Uploading${
-                transferRate && ` - ${transferRate}`
-            } - ${loadedHumanReadable} of ${totalHumanReadable}`;
-        } else if (status === 'processing') {
-            return 'Processing at filewall.io';
-        } else if (status === 'waiting') {
-            return 'Waiting - Upgrade your plan to process more files in parallel';
-        } else if (status === 'failed' && error === 'processing_failed') {
-            return 'File could not be converted into secure format, sorry'
-        } else if (error) {
-            return getErrorMessageText(error)
+    function buildStateConfig({status, error, progress}) {
+        const stateMap = {
+            'downloading-unsafe': _ => ({
+                messageText: `Downloading ${buildProgressString(progress)}`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'uploading': _ => ({
+                messageText: `Uploading ${buildProgressString(progress)}`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'processing': _ => ({
+                messageText: `Processing at filewall.io`,
+                progressBarState: 'mdl-progress__indeterminate',
+                showCloseButton: false
+            }),
+            'waiting': _ => ({
+                messageText: `Waiting - Upgrade your plan to process more files in parallel`,
+                progressBarState: 'mdl-progress__indeterminate',
+                showCloseButton: false
+            }),
+            'failed': _ => ({
+                messageText: `File could not be converted into secure format, sorry`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'too_many_requests': _ => ({
+                messageText: `Waiting - Upgrade your plan to process more files in parallel`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'auth_failed': _ => ({
+                messageText: `Authorization failed please login and try again`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'payment_required': _ => ({
+                messageText: `Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'failed': _ => ({
+                messageText: `We failed to process your request. Please try again later`,
+                progressBarState: '',
+                showCloseButton: true
+            }),
+            'default': _ => ({
+                messageText: `An error occured: ${error}, try again later`,
+                progressBarState: '',
+                showCloseButton: true
+            })
+        }
+        // if error take error code otherwise take status code, fallback to 'default'
+        return (stateMap[error || status] || stateMap['default'])();
+    }
+    function calcPercentLoaded(progress) {
+        const { loaded, total } = progress || {}
+        return Math.round(100 * (loaded / total))
+    }
+    function buildProgressString(progress) {
+        const { loaded, total, rate } =  progress || {}
+        let transferRate
+        let loadedHumanReadable
+        let totalHumanReadable
+        if (rate) {
+            transferRate = bytes(rate, {unitsSeparator: ' ', decimalPlaces: 0})
+        }
+        if (loaded) {
+            loadedHumanReadable = bytes(loaded, {unitsSeparator: ' ', decimalPlaces: 1})
+        }
+        if (total) {
+            totalHumanReadable = bytes(total, {unitsSeparator: ' ', decimalPlaces: 0})
+        }
+        return oneLine`
+            ${transferRate ? ` - ${transferRate}/s` : ''}
+             - ${loadedHumanReadable} of ${totalHumanReadable}
+        `
+    }
+    function getErrorMessageText(errorCode) {
+        const messageMap = {
+            'too_many_requests': {
+                header: 'Error',
+                message: 'Waiting - Upgrade your plan to process more files in parallel'
+            },
+            'auth_failed': {
+                header: 'Error',
+                message: 'Authorization failed please login and try again.'
+            },
+            'payment_required': {
+                header: 'Error',
+                message: 'Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade.'
+            },
+            'failed': {
+                header: 'Failure',
+                message: 'We failed to process your request. Please try again later.'
+            }
+        }
+        if (messageMap[errorCode]) {
+            return messageMap[errorCode].message;
         } else {
-            return '';
+            return `An error occured: ${errorCode}, try again later`;
         }
     }
     function upgradeComponents() {
@@ -195,25 +248,7 @@ window.addEventListener('load', function () {
     }
 
     function showMessage(messageCode) {
-        const messages = {
-            'too_many_requests': {
-                header: 'Error',
-                message: 'Slow down, you have initiated too many downloads.'
-            },
-            'auth_failed': {
-                header: 'Error',
-                message: 'Authorization failed please login and try again.'
-            },
-            'payment_required': {
-                header: 'Error',
-                message: 'Payment required to contine.'
-            },
-            'failed': {
-                header: 'Failure',
-                message: 'We failed to process your request. Please try again later.'
-            }
-        }
-        const { header, message } = messages[messageCode]
+        const { header, message } = getErrorMessageText(messageCode)
         writeSlug('messageHeaderSlug', header)
         writeSlug('messageSlug', message)
         $('#items').style.display = 'none'
@@ -264,31 +299,6 @@ window.addEventListener('load', function () {
         } else {
             if (input.attributes['type'].value === 'range') input.MaterialSlider && input.MaterialSlider.change(value);
             else input.value = value;
-        }
-    }
-    function getErrorMessageText(errorCode) {
-        const messageMap = {
-            'too_many_requests': {
-                header: 'Error',
-                message: 'Slow down, you have initiated too many downloads.'
-            },
-            'auth_failed': {
-                header: 'Error',
-                message: 'Authorization failed please login and try again.'
-            },
-            'payment_required': {
-                header: 'Error',
-                message: 'Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade.'
-            },
-            'failed': {
-                header: 'Failure',
-                message: 'We failed to process your request. Please try again later.'
-            }
-        }
-        if (messageMap[errorCode]) {
-            return messageMap[errorCode].message;
-        } else {
-            return `An error occured: ${errorCode}, try again later`;
         }
     }
 

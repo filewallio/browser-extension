@@ -70,6 +70,7 @@
     height: var(--size);
     width: var(--size);
     padding: 7px 5px;
+    margin-right: 15px;
 }
 .download-item__info-section {
     flex-grow: 1;
