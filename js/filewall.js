@@ -1,7 +1,7 @@
 import { storage } from './storage.js'
 import { environment } from './environment'
 import { Subject, interval, Observable } from 'rxjs'
-import { tap, mergeMap, filter, take } from 'rxjs/operators'
+import { tap, mergeMap, filter, take, retryWhen, delay } from 'rxjs/operators'
 
 const axios = require('axios').default
 class Filewall {
@@ -18,48 +18,52 @@ class Filewall {
                 downloadItem = {...downloadItem, blob: next}
                 downloadItem = {...downloadItem, status: 'authorizing'}
                 subject.next({...downloadItem})
-                this.authorize()
-                    .then( uploadAuth => downloadItem = { ...downloadItem, uploadAuth } )
-                    .then( () => {
-                        downloadItem = {...downloadItem, status: 'uploading'}
-                        subject.next({...downloadItem})
-                    } )
-                    .then( () => {
-                        this.uploadWithProgress(downloadItem).subscribe( next => {
-                            if (next.type === 'progress') {
-                                subject.next( this.buildProgress(next, downloadItem) )
-                            } else {
-                                let lastStatus = '';
-                                const intervalSubscription = interval(storage.appData.pollInterval).pipe(
-                                    take(storage.appData.pollTimout),
-                                    mergeMap( () => this.statusCheck(downloadItem) ),
-                                    filter( x => x.status !== lastStatus ),
-                                    tap( x => lastStatus = x.status ),
-                                    tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
-                                ).subscribe( pollStatus => {
-                                    const {status, error} = pollStatus
-                                    if (status === 'finished') {
-                                        intervalSubscription.unsubscribe()
-                                        subject.next({...downloadItem, status: 'finished'})
-                                        subject.complete()
-                                    } else if (status === 'failed') {
-                                        intervalSubscription.unsubscribe()
-                                        subject.error({...downloadItem, status, error})
-                                        subject.complete()
-                                    } else {
-                                        subject.next({...downloadItem, status})
-                                    }
-                                })
-                            }
-                        }, error => {
-                            subject.error({...downloadItem, error})
-                            subject.complete()
-                        })
-                    })
-                    .catch( response => {
-                        subject.error(response)
+                this.authorize().pipe(
+                    tap(uploadAuth => downloadItem = { ...downloadItem, uploadAuth }),
+                    tap(_ => downloadItem = {...downloadItem, status: 'uploading'}),
+                    tap(({error}) => downloadItem = {...downloadItem, error}),
+                    tap(_ => subject.next({...downloadItem})),
+                    retryWhen( errors => errors.pipe(
+                        tap(({error}) => downloadItem = {...downloadItem, error}),
+                        tap(_ => subject.next({...downloadItem})),
+                        delay(10000),
+                        tap(_=> console.log('error: after'))
+                    ))
+                ).subscribe( () => {
+                    this.uploadWithProgress(downloadItem).subscribe( next => {
+                        if (next.type === 'progress') {
+                            subject.next( this.buildProgress(next, downloadItem) )
+                        } else {
+                            let lastStatus = '';
+                            const intervalSubscription = interval(storage.appData.pollInterval).pipe(
+                                take(storage.appData.pollTimout),
+                                mergeMap( () => this.statusCheck(downloadItem) ),
+                                filter( x => x.status !== lastStatus ),
+                                tap( x => lastStatus = x.status ),
+                                tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
+                            ).subscribe( pollStatus => {
+                                const {status, error} = pollStatus
+                                if (status === 'finished') {
+                                    intervalSubscription.unsubscribe()
+                                    subject.next({...downloadItem, status: 'finished'})
+                                    subject.complete()
+                                } else if (status === 'failed') {
+                                    intervalSubscription.unsubscribe()
+                                    subject.error({...downloadItem, status, error})
+                                    subject.complete()
+                                } else {
+                                    subject.next({...downloadItem, status})
+                                }
+                            })
+                        }
+                    }, error => {
+                        subject.error({...downloadItem, error})
                         subject.complete()
                     })
+                }, response => {
+                    subject.error(response)
+                    subject.complete()
+                })
             }
         },
         error => subject.error(error)
@@ -67,20 +71,27 @@ class Filewall {
         return subject
     }
 
-    async authorize() {
-        const response = await fetch(`${environment.baseUrl}/api/authorize`, {
-            method: 'POST',
-            headers: {
-                apiKey: storage.appData.apiKey
+    authorize() {
+        return new Observable( async observer => {
+            try {
+                let response = await fetch(`${environment.baseUrl}/api/authorize`, {
+                    method: 'POST',
+                    headers: {
+                        apiKey: storage.appData.apiKey
+                    }
+                })
+                const json = await response.json()
+                if (response.status === 429) {
+                    throw json
+                }
+                observer.next(json);
+                observer.complete();
+
+            } catch(error) {
+                observer.error(error);
+                observer.complete();
             }
         })
-        const responseJson = await response.json()
-        const { error } = responseJson
-        if (error) {
-            console.log('authorize:error', {error})
-            throw { error }
-        }
-        return responseJson;
     }
     uploadWithProgress(downloadItem) {
         return new Observable(async obs => {
