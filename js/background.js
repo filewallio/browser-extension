@@ -1,25 +1,24 @@
 // import { browser } from 'webextension-polyfill';
 import { storage } from './storage.js';
 import { downloader } from './downloader.js';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 const browser = require('webextension-polyfill');
 
 let shouldCatchUrls = [];
 // TODO only call on change of value instead of each time store is updated
-storage.onChange().subscribe(store => {
+storage.onChange().pipe(
+    distinctUntilKeyChanged('enable-context-menu')
+).subscribe(async store => {
 
     if (store['enable-context-menu'] ) {
-        browser.contextMenus.create({
+        await browser.contextMenus.create({
             id: 'secure_download',
             title: 'Secure Download',
             type: 'normal',
             contexts: ['link'],
         });
     } else {
-        browser.contextMenus.remove('secure_download');
-    }
-    // send user to options page if not logged in
-    if (!store.apiKey) {
-        //browser.runtime.openOptionsPage();
+        await browser.contextMenus.remove('secure_download');
     }
 });
 
