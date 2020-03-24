@@ -16,10 +16,12 @@ window.addEventListener('load', function () {
             console.log('active-downloads', activeDownloads)
             renderDownloadItems(activeDownloads)
         })
-    const messagePort = browser.runtime.connect({ name: 'messages' })
-    messagePort.onMessage.addListener( message => {
-        console.log('message', message)
-        showMessage(message)
+    const actionsPort = browser.runtime.connect({ name: 'actions' })
+    actionsPort.onMessage.addListener( actions => {
+        console.log('actions to popup.js: ', actions)
+        if (actions.find('show-authentication')) {
+            showAuthentication();
+        }
     })
     storage.onChange().subscribe( store => {
         const { apiKey, username } = store
@@ -216,31 +218,6 @@ window.addEventListener('load', function () {
              - ${loadedHumanReadable} of ${totalHumanReadable}
         `
     }
-    function getErrorMessageText(errorCode) {
-        const messageMap = {
-            'too_many_requests': {
-                header: 'Error',
-                message: 'Waiting - Upgrade your plan to process more files in parallel'
-            },
-            'auth_failed': {
-                header: 'Error',
-                message: 'Authorization failed please login and try again.'
-            },
-            'payment_required': {
-                header: 'Error',
-                message: 'Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade.'
-            },
-            'failed': {
-                header: 'Failure',
-                message: 'We failed to process your request. Please try again later.'
-            }
-        }
-        if (messageMap[errorCode]) {
-            return messageMap[errorCode].message;
-        } else {
-            return `An error occured: ${errorCode}, try again later`;
-        }
-    }
     function upgradeComponents() {
 
         $s('.mdl-progress').forEach( el => {
@@ -248,21 +225,6 @@ window.addEventListener('load', function () {
         } )
     }
 
-    function showMessage(messageCode) {
-        const { header, message } = getErrorMessageText(messageCode)
-        writeSlug('messageHeaderSlug', header)
-        writeSlug('messageSlug', message)
-        $('#items').style.display = 'none'
-        $('#message').style.display = 'block'
-
-    }
-    function hideMessage() {
-        $('#items').style.display = 'block'
-        $('#message').style.display = 'none'
-        writeSlug('messageHeaderSlug', '')
-        writeSlug('messageSlug', '')
-        messagePort.postMessage('clear')
-    }
     function hideAuthentication() {
         $('#options-open').style.display = 'block';
         $('#popup__bottom').style.display = 'block';

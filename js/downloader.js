@@ -2,6 +2,8 @@ import { filewall } from './filewall.js'
 import { BehaviorSubject } from 'rxjs';
 import { storage } from './storage.js';
 import { uuid } from 'uuidv4'
+import { logout } from './authentication'
+import { distinctUntilKeyChanged, filter, take } from 'rxjs/operators';
 
 const browser = require('webextension-polyfill');
 
@@ -12,7 +14,7 @@ class Downloader {
         this.catchedDownloads = {};
         this.wasConfirmedDirectUrls = {};
         // this.messages = []
-        this.message$ = new BehaviorSubject()
+        this.actions$ = new BehaviorSubject()
         this.lastId = 0;
         browser.runtime.onConnect.addListener( port => {
             if (port.name === 'active-downloads') {
@@ -24,24 +26,22 @@ class Downloader {
                 port.onDisconnect.addListener( port => {
                     subscription.unsubscribe();
                 })
-            } else if (port.name === 'messages') {
-                const subscription = this.message$.subscribe( message => {
+            } else if (port.name === 'actions') {
+                const subscription = this.actions$.subscribe( message => {
                     if (!message) return
                     port.postMessage(message)
-                    browser.browserAction.setBadgeText({text: '!'})
+                    // browser.browserAction.setBadgeText({text: '!'})
                 })
     
                 port.onDisconnect.addListener( port => {
                     subscription.unsubscribe();
                 })
-                port.onMessage.addListener( message => {
-                    console.log('message recieced to downloader')
-                    if (message === 'clear') {
-                        this.message$.next('')
+                port.onMessage.addListener( actions => {
+                    console.log('actions to downloader', actions)
+                    if (actions.find('clear')) {
+                        this.actions$.next([])
                     }
                     browser.browserAction.setBadgeText({text: ''})
-                    // const [ message, ...rest ] = this.messages
-                    // this.messages = rest
                 })
             } else if (port.name === 'dialog') {
                 // listen for messages from the dialog
@@ -57,7 +57,9 @@ class Downloader {
                 browser.browserAction.setBadgeText({text: `${length}`})
             }
         })
-        storage.onChange().subscribe( store => {
+        storage.onChange().pipe(
+            distinctUntilKeyChanged('apiKey')
+        ).subscribe( store => {
             const { apiKey, username } = store
             if (!apiKey) {
                 browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
@@ -152,27 +154,29 @@ class Downloader {
             }, response => {
                 console.log('downloadItemSubscription error', response)
                 const { error, status } = response
-                // if (error === 'too_many_requests') {
-                //     // tell user to slow down
-                //     this.message$.next('too_many_requests')
-
-                // } else if (error === 'auth_failed') {
-                //     // show error to user
-                //     this.message$.next('auth_failed')
-                //     // sent user to login screen
-                // } else if (error === 'payment_required') {
-                //     // send user to payment page
-                //     this.message$.next('payment_required')
-                // } else if (status === 'failed') {
-                //     // tell user it failed and to try again
-                //     this.message$.next('failed')
-                // }
                 this.updateStatus({
                     ...downloadItem,
                     error
                 })
                 this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
-                // this.removeAciveDownload(downloadItem)
+                console.log('errorMap', error);
+                const errorMap = {
+                    'auth_failed': async _ => {
+                        // 304 Fobidden remove download-item
+                        this.removeAciveDownload(downloadItem)
+                        // show login menu in popup
+                        this.actions$.next(['show-authentication'])
+                        await logout()
+                        storage.onChange().pipe(
+                            distinctUntilKeyChanged('apiKey'),
+                            filter( store => !!store.apiKey ),
+                            take(1)
+                        ).subscribe( _ => this.actions$.next([]) )
+                    },
+                    'default': _ => {
+                    }
+                };
+                (errorMap[error] || errorMap['default'])()
             })
         downloadItem = {
             ...downloadItem,
