@@ -22,3 +22,10 @@ export async function login(username, password) {
         apiKey
     })
 }
+
+export async function logout() {
+    return await storage.setAppData({
+        username: false,
+        apiKey: false
+    })
+}
