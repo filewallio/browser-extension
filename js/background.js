@@ -5,22 +5,24 @@ import { distinctUntilKeyChanged } from 'rxjs/operators';
 const browser = require('webextension-polyfill');
 
 let shouldCatchUrls = [];
-// TODO only call on change of value instead of each time store is updated
-storage.onChange().pipe(
-    distinctUntilKeyChanged('enable-context-menu')
-).subscribe(async store => {
 
-    if (store['enable-context-menu'] ) {
-        await browser.contextMenus.create({
-            id: 'secure_download',
-            title: 'Secure Download',
-            type: 'normal',
-            contexts: ['link'],
-        });
-    } else {
-        await browser.contextMenus.remove('secure_download');
-    }
-});
+browser.runtime.onInstalled.addListener( _ => {
+    storage.onChange().pipe(
+        distinctUntilKeyChanged('enable-context-menu')
+    ).subscribe(store => {
+        if (store['enable-context-menu'] ) {
+            browser.contextMenus.create({
+                id: 'secure_download',
+                title: 'Secure Download',
+                type: 'normal',
+                contexts: ['link'],
+            });
+        } else {
+            browser.contextMenus.remove('secure_download')
+                .catch(e => console.log('error removingsecure_download', e.message))
+        }
+    });
+})
 
 // listen for clicks to contextMenu
 browser.contextMenus.onClicked.addListener((info, tab) => {
