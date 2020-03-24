@@ -156,7 +156,8 @@ class Downloader {
                 const { error, status } = response
                 this.updateStatus({
                     ...downloadItem,
-                    error
+                    error,
+                    status
                 })
                 this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
                 console.log('errorMap', error);
