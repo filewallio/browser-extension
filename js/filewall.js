@@ -1,9 +1,21 @@
 import { storage } from './storage.js'
 import { environment } from './environment'
-import { Subject, interval, Observable } from 'rxjs'
-import { tap, mergeMap, filter, take, retryWhen, delay } from 'rxjs/operators'
-
+import { Subject, interval, Observable, of, throwError } from 'rxjs'
+import {
+    tap,
+    mergeMap,
+    filter,
+    take,
+    retryWhen,
+    delay,
+    distinctUntilKeyChanged,
+    repeatWhen,
+    takeWhile,
+    scan,
+    concatMap
+} from 'rxjs/operators'
 const axios = require('axios').default
+
 class Filewall {
     constructor() { }
     process(downloadItem) {
@@ -34,14 +46,13 @@ class Filewall {
                         if (next.type === 'progress') {
                             subject.next( this.buildProgress(next, downloadItem) )
                         } else {
-                            let lastStatus = '';
-                            const intervalSubscription = interval(storage.appData.pollInterval).pipe(
-                                take(storage.appData.pollTimout),
-                                mergeMap( () => this.statusCheck(downloadItem) ),
-                                filter( x => x.status !== lastStatus ),
-                                tap( x => lastStatus = x.status ),
+                            const intervalSubscription = this.statusCheck(downloadItem).pipe(
+                                this.repeatNTimes(storage.appData.pollTimout, storage.appData.pollInterval),
+                                this.retryNTimes(storage.appData.pollRetryErrorCount, storage.appData.pollInterval),
+                                distinctUntilKeyChanged('status'),
                                 tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
                             ).subscribe( pollStatus => {
+                                console.log('pollStatus', pollStatus)
                                 const {status, error} = pollStatus
                                 if (status === 'finished') {
                                     intervalSubscription.unsubscribe()
@@ -54,7 +65,31 @@ class Filewall {
                                 } else {
                                     subject.next({...downloadItem, status})
                                 }
+                            }, error => {
+                                intervalSubscription.unsubscribe()
+                                subject.error({...downloadItem, status, error})
+                                subject.complete()
                             })
+                            // const intervalSubscription = interval(storage.appData.pollInterval).pipe(
+                            //     take(storage.appData.pollTimout),
+                            //     mergeMap( () => this.statusCheck(downloadItem) ),
+                            //     distinctUntilKeyChanged('status'),
+                            //     tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
+                            // ).subscribe( pollStatus => {
+                            //     console.log('pollStatus', pollStatus)
+                            //     const {status, error} = pollStatus
+                            //     if (status === 'finished') {
+                            //         intervalSubscription.unsubscribe()
+                            //         subject.next({...downloadItem, status: 'finished'})
+                            //         subject.complete()
+                            //     } else if (status === 'failed') {
+                            //         intervalSubscription.unsubscribe()
+                            //         subject.error({...downloadItem, status, error})
+                            //         subject.complete()
+                            //     } else {
+                            //         subject.next({...downloadItem, status})
+                            //     }
+                            // })
                         }
                     }, error => {
                         subject.error({...downloadItem, error})
@@ -162,13 +197,31 @@ class Filewall {
         })
     }
     statusCheck(downloadItem) {
-        return fetch(`${downloadItem.uploadAuth.links.self}`, {
-            method: 'GET',
-            headers: {
-                apiKey: storage.appData.apiKey,
+        return new Observable( async observer => {
+            try {
+                let response = await fetch(`${downloadItem.uploadAuth.links.self}`, {
+                    method: 'GET',
+                    headers: {
+                        apiKey: storage.appData.apiKey,
+                    }
+                })
+                const json = await response.json()
+                if (response.status === 400) {
+                    throw {
+                        error: 'bad_request',
+                        ...json
+                    }
+                }
+                console.log('statusCheck::next')
+                observer.next(json);
+                observer.complete();
+
+            } catch(error) {
+                console.log('statusCheck::error')
+                observer.error(error);
+                observer.complete();
             }
         })
-            .then( r => r.json() )
     }
     buildProgress(progressEvent, downloadItem) {
         const { loaded, total, timeStamp, rate } = progressEvent
@@ -181,6 +234,24 @@ class Filewall {
                 rate
             }
         }
+    }
+    retryNTimes(retryCount, retryInterval) {
+        let lastError;
+        return retryWhen( errors =>
+            errors.pipe(
+                delay(retryInterval), // delay retry for x time
+                tap(({error}) => lastError = error),
+                scan((acc, _) => acc + 1, 0),
+                concatMap( v => v < retryCount ? of('retry') : throwError(lastError) )
+        ))
+    }
+    repeatNTimes(repeatCount, repeatInterval) {
+        return repeatWhen( notifications =>
+            notifications.pipe(
+                tap(tap => console.log('repeat:', tap)),
+                delay(repeatInterval),
+                take(repeatCount - 1),
+            ))
     }
 }
 export let filewall = new Filewall();
