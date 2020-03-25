@@ -115,6 +115,7 @@ window.addEventListener('load', function () {
         const { filename, id, status, progress, error } = downloadItem;
         const { messageText, progressBarState, showCloseButton } = buildStateConfig({status, error, progress})
         const percentLoaded = calcPercentLoaded(progress) || 100
+        // TODO close button does not work yet!
 
         return html`
             <div class="download-item" id="download-item-${id}">
@@ -144,24 +145,19 @@ window.addEventListener('load', function () {
                 progressBarState: '',
                 showCloseButton: true
             }),
-            'uploading': _ => ({
-                messageText: `Uploading ${buildProgressString(progress)}`,
-                progressBarState: '',
+            'authorizing': _ => ({  // TODO do i get is correctly that this state exists? (filewall.js line 35 ? )
+                messageText: `Authorizing at filewall.io`,
+                progressBarState: 'mdl-progress__indeterminate',
+                showCloseButton: false
+            }),
+            'auth_failed': _ => ({
+                messageText: `Authorization failed please login and try again`,
+                progressBarState: 'bufferbar_error',
                 showCloseButton: true
             }),
-            'processing': _ => ({
-                messageText: `Processing at filewall.io`,
-                progressBarState: 'mdl-progress__indeterminate',
-                showCloseButton: false
-            }),
-            'waiting': _ => ({
-                messageText: `Waiting - Upgrade your plan to process more files in parallel`,
-                progressBarState: 'mdl-progress__indeterminate',
-                showCloseButton: false
-            }),
-            'failed': _ => ({
-                messageText: `File could not be converted into secure format, sorry`,
-                progressBarState: '',
+            'payment_required': _ => ({
+                messageText: `Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade`,
+                progressBarState: 'bufferbar_warning',
                 showCloseButton: true
             }),
             'too_many_requests': _ => ({
@@ -169,24 +165,34 @@ window.addEventListener('load', function () {
                 progressBarState: '',
                 showCloseButton: true
             }),
-            'auth_failed': _ => ({
-                messageText: `Authorization failed please login and try again`,
+            'uploading': _ => ({
+                messageText: `Uploading ${buildProgressString(progress)}`,
                 progressBarState: '',
-                showCloseButton: true
+                showCloseButton: false
             }),
-            'payment_required': _ => ({
-                messageText: `Plan limit reached! Visit <a href="https://filewall.io">filewall.io</a> to upgrade`,
+            'waiting': _ => ({ // NOTE: the status api returns status:waiting at the moment, but this may be removed. We hide the status waiting here for now by showing the same message as with processing.
+                messageText: `Processing at filewall.io`,
                 progressBarState: '',
+                showCloseButton: false
+            }),
+            'processing': _ => ({
+                messageText: `Processing at filewall.io`,
+                progressBarState: 'mdl-progress__indeterminate',
+                showCloseButton: false
+            }),
+            'processing_failed': _ => ({
+                messageText: `File could not be converted into secure format, sorry`,
+                progressBarState: 'bufferbar_warning',
                 showCloseButton: true
             }),
             'failed': _ => ({
                 messageText: `We failed to process your request. Please try again later`,
-                progressBarState: '',
+                progressBarState: 'bufferbar_error',
                 showCloseButton: true
             }),
             'default': _ => ({
                 messageText: `An error occured: ${error}, try again later`,
-                progressBarState: '',
+                progressBarState: 'bufferbar_error',
                 showCloseButton: true
             })
         }
