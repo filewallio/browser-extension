@@ -38,8 +38,11 @@ class Downloader {
                 })
                 port.onMessage.addListener( actions => {
                     console.log('actions to downloader', actions)
-                    if (actions.find('clear')) {
-                        this.actions$.next([])
+                    if (actions['clear']) {
+                        this.actions$.next({})
+                    }
+                    else if (actions['delete-download-item']) {
+                        this.removeAciveDownload(actions['delete-download-item'])
                     }
                     browser.browserAction.setBadgeText({text: ''})
                 })
@@ -166,13 +169,13 @@ class Downloader {
                         // 304 Fobidden remove download-item
                         this.removeAciveDownload(downloadItem)
                         // show login menu in popup
-                        this.actions$.next(['show-authentication'])
+                        this.actions$.next({'show-authentication': ''})
                         await logout()
                         storage.onChange().pipe(
                             distinctUntilKeyChanged('apiKey'),
                             filter( store => !!store.apiKey ),
                             take(1)
-                        ).subscribe( _ => this.actions$.next([]) )
+                        ).subscribe( _ => this.actions$.next({}) )
                     },
                     'default': _ => {
                     }
@@ -193,8 +196,11 @@ class Downloader {
         ]
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
-    removeAciveDownload(downloadItem) {
-        this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadItem.id )
+    removeAciveDownload({id: downloadId}) {
+        const downloadItem = this.activeDownloads.find( x => x.id === downloadId )
+        if (downloadItem.downloadItemSubscription)
+            downloadItem.downloadItemSubscription.unsubscribe()
+        this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadId )
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
     // removeDownload(downloadId) { }

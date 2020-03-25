@@ -19,7 +19,7 @@ window.addEventListener('load', function () {
     const actionsPort = browser.runtime.connect({ name: 'actions' })
     actionsPort.onMessage.addListener( actions => {
         console.log('actions to popup.js: ', actions)
-        if (actions.find('show-authentication')) {
+        if (actions['show-authentication']) {
             showAuthentication();
         }
     })
@@ -60,9 +60,6 @@ window.addEventListener('load', function () {
 
     })
 
-    $('#clear-message').addEventListener('click', e => {
-        hideMessage()
-    })
     $('#logout').addEventListener('click', () => {
         storage.setAppData({
             apiKey: null,
@@ -109,6 +106,7 @@ window.addEventListener('load', function () {
         
         $('#items').innerHTML = activeDownloadsHtml
         upgradeComponents()
+        addDeleteDownloadItemListener()
 
     }
 
@@ -262,6 +260,26 @@ window.addEventListener('load', function () {
         } else {
             if (input.attributes['type'].value === 'range') input.MaterialSlider && input.MaterialSlider.change(value);
             else input.value = value;
+        }
+    }
+    function addDeleteDownloadItemListener() {
+        const downloadItems = $('#items')
+        downloadItems.addEventListener('click', event => {
+            const { target } = event;
+            if (parentHasClass(target, 'download-item__close')) {
+                const downloadItem = parseDownlodItemChild(target);
+                console.log('downloadItem', downloadItem)
+                actionsPort.postMessage({'delete-download-item': downloadItem})
+            }
+        })
+    }
+    function parentHasClass(target, classString) {
+        return target.parentElement.classList.contains(classString)
+    }
+    function parseDownlodItemChild(target) {
+        const { id } = target.closest('.download-item')
+        return {
+            id: +/download-item-(.*)$/.exec(id)[1]
         }
     }
 
