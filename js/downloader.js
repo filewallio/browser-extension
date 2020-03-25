@@ -151,7 +151,6 @@ class Downloader {
                     this.removeAciveDownload(downloadItem)
                     browser.downloads.download({
                         url: pollStatus.links.download,
-                        filename: filename
                     });
                 }
             }, response => {
