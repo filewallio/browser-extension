@@ -203,7 +203,6 @@ class Downloader {
         this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadId )
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
-    // removeDownload(downloadId) { }
     updateStatus(downloadItem) {
         const {id, status, progress, error} = downloadItem
         if (progress) {

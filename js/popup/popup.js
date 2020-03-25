@@ -115,7 +115,7 @@ window.addEventListener('load', function () {
         const { filename, id, status, progress, error } = downloadItem;
         const { messageText, progressBarState, showCloseButton } = buildStateConfig({status, error, progress})
         const percentLoaded = calcPercentLoaded(progress) || 100
-        // TODO close button does not work yet!
+        // DONE close button does not work yet!
 
         return html`
             <div class="download-item" id="download-item-${id}">
@@ -273,7 +273,7 @@ window.addEventListener('load', function () {
         downloadItems.addEventListener('click', event => {
             const { target } = event;
             if (parentHasClass(target, 'download-item__close')) {
-                const downloadItem = parseDownlodItemChild(target);
+                const downloadItem = parseDownlodItemChildId(target);
                 console.log('downloadItem', downloadItem)
                 actionsPort.postMessage({'delete-download-item': downloadItem})
             }
@@ -282,7 +282,7 @@ window.addEventListener('load', function () {
     function parentHasClass(target, classString) {
         return target.parentElement.classList.contains(classString)
     }
-    function parseDownlodItemChild(target) {
+    function parseDownlodItemChildId(target) {
         const { id } = target.closest('.download-item')
         return {
             id: +/download-item-(.*)$/.exec(id)[1]
