@@ -1,6 +1,7 @@
 var Interfake = require('interfake');
 var interfake = new Interfake();
-var req = interfake.post('/account/api/')
+interfake.get('/somedoc.pdf').status(200).responseHeaders({'content-disposition': 'attachment; filename=unsafe.pdf'})
+interfake.post('/account/api/')
     .status(200).body({ apikey: '1234-1234-1234-1234' });
     // .status(401).body({ })
 interfake.post('/api/authorize')
@@ -22,7 +23,7 @@ interfake.get('/api/get/abbc7c94-h11y-4r27-92fg-czd3362f464a')
     // .status(200).body({ 'status': 'finished', 'links': { 'download': 'http://localhost:3000/safe-document.pdf' } })
 
 interfake.get('/safe-document.pdf')
-    .status(200).body({})
+    .status(200).responseHeaders({'content-disposition': 'attachment; filename=safe-document.pdf', 'content-type': 'application/pdf'})
     // .status(400).body({})
 
 interfake.listen(3000);
