@@ -198,7 +198,7 @@ class Downloader {
     }
     removeAciveDownload({id: downloadId}) {
         const downloadItem = this.activeDownloads.find( x => x.id === downloadId )
-        if (downloadItem.downloadItemSubscription)
+        if (downloadItem && downloadItem.downloadItemSubscription)
             downloadItem.downloadItemSubscription.unsubscribe()
         this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadId )
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
