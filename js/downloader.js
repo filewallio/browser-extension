@@ -204,7 +204,7 @@ class Downloader {
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
     updateStatus(downloadItem) {
-        const {id, status, progress, error} = downloadItem
+        const {id, status, progress, error, filename} = downloadItem
         if (progress) {
             const { loaded, total, rate } = progress
             const percent = loaded && total && Math.round(100 * (loaded / total))
@@ -217,6 +217,7 @@ class Downloader {
             item.status = status
             item.progress = progress
             item.error = error
+            item.filename = filename
         }
     }
     sanitizeItem(item) {

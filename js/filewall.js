@@ -14,6 +14,7 @@ import {
     scan,
     concatMap
 } from 'rxjs/operators'
+import { parse } from 'content-disposition-attachment'
 const axios = require('axios').default
 
 class Filewall {
@@ -23,7 +24,11 @@ class Filewall {
         downloadItem = {...downloadItem, status: 'downloading-unsafe'}
         subject.next({...downloadItem})
         this.downloadWithProgress(downloadItem).subscribe( next => {
-            if (next.type === 'progress') {
+            if (next.filename) {
+                const { filename } = next
+                downloadItem = {...downloadItem, filename}
+                subject.next({...downloadItem})
+            } else if (next.type === 'progress') {
                 subject.next( this.buildProgress(next, downloadItem) )
             } else {
                 console.log('authorizing', next)
@@ -70,26 +75,6 @@ class Filewall {
                                 subject.error({...downloadItem, status, error})
                                 subject.complete()
                             })
-                            // const intervalSubscription = interval(storage.appData.pollInterval).pipe(
-                            //     take(storage.appData.pollTimout),
-                            //     mergeMap( () => this.statusCheck(downloadItem) ),
-                            //     distinctUntilKeyChanged('status'),
-                            //     tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
-                            // ).subscribe( pollStatus => {
-                            //     console.log('pollStatus', pollStatus)
-                            //     const {status, error} = pollStatus
-                            //     if (status === 'finished') {
-                            //         intervalSubscription.unsubscribe()
-                            //         subject.next({...downloadItem, status: 'finished'})
-                            //         subject.complete()
-                            //     } else if (status === 'failed') {
-                            //         intervalSubscription.unsubscribe()
-                            //         subject.error({...downloadItem, status, error})
-                            //         subject.complete()
-                            //     } else {
-                            //         subject.next({...downloadItem, status})
-                            //     }
-                            // })
                         }
                     }, error => {
                         subject.error({...downloadItem, error})
@@ -165,7 +150,7 @@ class Filewall {
         })
     }
     downloadWithProgress(downloadItem) {
-        return new Observable( obs => {
+        return new Observable( observer => {
             let firstProgress
             return axios({
                 method: 'GET',
@@ -177,22 +162,33 @@ class Filewall {
                         const { loaded, total, timeStamp } = progress
                         const rate = loaded / (timeStamp - firstTimeStamp)
                         progress.rate = rate
-                        obs.next(progress)
+                        observer.next(progress)
                     } else {
-                        obs.next(progress)
+                        observer.next(progress)
                         firstProgress = progress
                     }
                 }
             })
+            .then( response => {
+                try {
+                    const { attachment, filename } = parse(response.headers['content-disposition'])
+                    if (attachment)
+                        observer.next({ filename })
+
+                } catch (error) {
+                    console.log('filewall.js:downloadWithProgress could not parse content-disposition', error)
+                }
+                return response
+            })
             .then( response => new Blob([response.data], {type: response.headers['content-type']}))
             .then( data => {
-                obs.next(data);
-                obs.complete();
+                observer.next(data);
+                observer.complete();
             } )
             .catch( error => {
                 const { response } = error
-                obs.error(response);
-                obs.complete();
+                observer.error(response);
+                observer.complete();
             } )
         })
     }
