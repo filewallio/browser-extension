@@ -144,7 +144,7 @@ window.addEventListener('load', function () {
                 progressBarState: '',
                 showCloseButton: true
             }),
-            'authorizing': _ => ({  // TODO do i get is correctly that this state exists? (filewall.js line 35 ? )
+            'authorizing': _ => ({
                 messageText: `Authorizing at filewall.io`,
                 progressBarState: 'mdl-progress__indeterminate',
                 showCloseButton: false

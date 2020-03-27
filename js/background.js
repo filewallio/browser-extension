@@ -31,7 +31,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-// Get confirm messages from dialog iframe     // TODO xss?
+// Get confirm messages from dialog iframe  
 browser.runtime.onMessage.addListener((request) => {
     if (request.download_id) {
         downloader.confirmCatchedDownload(request.download_id, request.action);

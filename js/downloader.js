@@ -56,7 +56,7 @@ class Downloader {
             if (length === 0) {
                 browser.browserAction.setBadgeText({text: ''})
             } else {
-                browser.browserAction.setBadgeBackgroundColor({color:'red'})
+                browser.browserAction.setBadgeBackgroundColor({color:'#6f8d00'})
                 browser.browserAction.setBadgeText({text: `${length}`})
             }
         })
@@ -65,7 +65,7 @@ class Downloader {
         ).subscribe( store => {
             const { apiKey, username } = store
             if (!apiKey) {
-                browser.browserAction.setBadgeBackgroundColor({color:'DarkOrange'})
+                browser.browserAction.setBadgeBackgroundColor({color:'#f80'})
                 browser.browserAction.setBadgeText({text: '?'})
             } else {
                 browser.browserAction.setBadgeText({text: ''})
@@ -112,14 +112,8 @@ class Downloader {
         this.sendMessageToActiveTab({target: "dialog", action: "hide", dialog_id: download_id});
     }
 
-    onDeterminingFilename(url, filename) {
-        console.log('onDeterminingFilename', url, filename)
-        // todo use this filename if needed
-    }
-
     addDownload(downloadUrl, filename) {
-        // take text after last '/' as filename
-        // TODO GET FILENAME FROM CONTENT DISPOSITION IN RESPONSE, if filename is not yet know via onDeterminingFilename
+        // take text after last '/' as filename for now, use content disposition later
         if (!filename) {
             filename = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
         }
