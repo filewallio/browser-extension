@@ -1,6 +1,6 @@
 import { login } from '../authentication'
 import { storage } from '../storage'
-import { html, oneLine } from 'common-tags'
+import { html,safeHtml, oneLine } from 'common-tags'
 // import { bytes } from 'bytes';
 const bytes = require('bytes')
 
@@ -115,7 +115,6 @@ window.addEventListener('load', function () {
         const { filename, id, status, progress, error } = downloadItem;
         const { messageText, progressBarState, showCloseButton } = buildStateConfig({status, error, progress})
         const percentLoaded = calcPercentLoaded(progress) || 100
-        // DONE close button does not work yet!
 
         return html`
             <div class="download-item" id="download-item-${id}">
@@ -123,7 +122,7 @@ window.addEventListener('load', function () {
                     <i class="fa fa-file-o fa-2x" aria-hidden="true"></i>
                 </div>
                 <div class="download-item__info-section">
-                    <div class="download-item__filename">${filename}</div>
+                    <div class="download-item__filename">${ safeHtml`${filename}` }</div>
                     <div class="download-item__status">${messageText}</div>
                     <div class="download-item__progress">
                         <div class="mdl-progress ${progressBarState} mdl-js-progress" style="width:${percentLoaded}%;"></div>
@@ -135,9 +134,9 @@ window.addEventListener('load', function () {
                     `}
                 </div>
             </div>
-
         `
     }
+
     function buildStateConfig({status, error, progress}) {
         const stateMap = {
             'downloading-unsafe': _ => ({
