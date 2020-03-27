@@ -12,7 +12,7 @@ class Storage {
             'username': '',
             'baseUrl': '',
             'enable-context-menu': true,
-            'catch-all-downloads': true,
+            'catch-all-downloads': false,
             //'auto_secure_downloads': false,
             //'auto_cancel_insecure': false,
             //'auto_secure_urls': [],

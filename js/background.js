@@ -43,37 +43,38 @@ browser.runtime.onMessage.addListener((request) => {
 // INTERCEPT DOWNLOADS
 //
 
+let intercepted_dl_ids = [];
+
 // This will catch normal downloads
 // CREATE
 browser.downloads.onCreated.addListener( downloadItem => {
     console.log('downloads.onCreated', downloadItem.filename, downloadItem);
-    storage.appDataAsync().then(store => {
-        if (store['catch-all-downloads']  === true) {
+    if ( storage.appData['catch-all-downloads']  === true) { // don't do async,  the code below must run right now because of browser.downloads.pause
 
-            if (downloader.wasConfirmedDirect(downloadItem.url)){
-                return;
-            }
-
-            var baseurls = [
-                "https://filewall.io"   ,
-                "https://eu.filewall.io",
-                "https://us.filewall.io",
-                "http://127.0.0.1",
-                "chrome-extension://"
-            ];
-            const { origin } = new URL(downloadItem.url)
-            for (const baseUrl of baseurls) {
-                    if ( origin === baseUrl ) {
-                        return;
-                }
-            }
-            // cancel existing download
-            removeDownload(downloadItem);
-
-            // ask user
-            downloader.addCatchedDownload(downloadItem.url);
+        if (downloader.wasConfirmedDirect(downloadItem.url)){
+            return;
         }
-    });
+
+        var baseurls = [
+            "https://filewall.io"   ,
+            "https://eu.filewall.io",
+            "https://us.filewall.io",
+            "http://127.0.0.1",
+            "chrome-extension://"
+        ];
+        const { origin } = new URL(downloadItem.url);
+        for (const baseUrl of baseurls) {
+                if ( origin === baseUrl ) {
+                    return;
+            }
+        }
+        const { state, id } = downloadItem;
+        browser.downloads.pause(id); // pause download for now to onDeterminingFilename does not produce an error msg
+        intercepted_dl_ids[id] = true;
+
+        // ask user
+        downloader.addCatchedDownload(downloadItem.url);
+    }
 });
 
 
@@ -81,23 +82,28 @@ browser.downloads.onCreated.addListener( downloadItem => {
 
 browser.downloads.onDeterminingFilename.addListener(function (downloadItem, suggest) {
     console.log('onDeterminingFilename', downloadItem.filename, downloadItem);
+
+    const { state, id } = downloadItem;
+    if(intercepted_dl_ids[id] === true){
+
+        delete intercepted_dl_ids[id];
+
+        console.log('trying to erase download', downloadItem);
+
+        // suggest dummy filename so "save as" file dialog is not triggered after this event and does not produce some internal error because the download will have been deleted
+        suggest({filename: "dummy"});
+
+        // Erase existing download
+        if (state === 'complete') {
+             browser.downloads.removeFile(id);
+        }
+        browser.downloads.erase({id});
+
+    }
 });
 
 // CATCH COMPLETED DOWNLOAD
 // browser.downloads.onChanged.addListener(function (downloadDelta) { });
+
 // CATCH ERASE
 // browser.downloads.onErased.addListener(function (downloadId) { });
-
-async function removeDownload(downloadItem) {
-    const { state, id } = downloadItem;
-    // pause existing download
-    console.log(id, 'trying to pause state: ' + state)
-    await browser.downloads.pause(id);
-    if (state === 'complete') {
-         console.log(id, 'trying to removeFile state: ' + state)
-         await browser.downloads.removeFile(id);
-    }
-    // erase download
-    console.log(id, 'trying to erase state: ' + state)
-    await browser.downloads.erase({id});
-}
