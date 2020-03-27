@@ -1,6 +1,6 @@
 {
   "name": "filewallio",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Filewall.io Browser Extension",
   "author": "filewallio",
   "main": "index.js",
