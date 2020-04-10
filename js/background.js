@@ -51,7 +51,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
     console.log('downloads.onCreated', downloadItem.filename, downloadItem);
     if ( storage.appData['catch-all-downloads']  === true) { // don't do async,  the code below must run right now because of browser.downloads.pause
 
-        if (downloader.wasConfirmedDirect(downloadItem.url)){
+        if (downloader.wasConfirmedDirect(downloadItem.finalUrl)){
             return;
         }
 
@@ -62,10 +62,10 @@ browser.downloads.onCreated.addListener( downloadItem => {
             "http://127.0.0.1",
             "chrome-extension://"
         ];
-        const { origin } = new URL(downloadItem.url);
+        const { origin } = new URL(downloadItem.finalUrl);
         for (const baseUrl of baseurls) {
-                if ( origin === baseUrl ) {
-                    return;
+            if ( origin === baseUrl ) {
+                return;
             }
         }
         const { state, id } = downloadItem;
@@ -73,7 +73,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
         intercepted_dl_ids[id] = true;
 
         // ask user
-        downloader.addCatchedDownload(downloadItem.url);
+        downloader.addCatchedDownload(downloadItem.finalUrl);
     }
 });
 
