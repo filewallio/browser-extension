@@ -53,7 +53,6 @@ module.exports = env => ({
 
   entry: {
     'background/background': './js/background.js',
-    'options/options': './js/options/options.js',
     'popup/popup': './js/popup/popup.js',
     'dialog/dialog': './js/dialog/dialog.js'
   },
