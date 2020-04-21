@@ -13,7 +13,6 @@ class Downloader {
         this.activeDownload$ = new BehaviorSubject([])
         this.catchedDownloads = {};
         this.wasConfirmedDirectUrls = {};
-        // this.messages = []
         this.actions$ = new BehaviorSubject()
         this.lastId = 0;
         browser.runtime.onConnect.addListener( port => {
@@ -73,21 +72,37 @@ class Downloader {
         })
     }
 
-    addCatchedDownload(downloadUrl) {
-        console.log('addCatchedDownload', downloadUrl)
-        var download_id = uuid();
+    addCatchedDownload(browserDownloadId, downloadUrl, targetTab) {
+        console.log('addCatchedDownload',browserDownloadId,  downloadUrl)
+        var download_id = uuid(); // our uuid,
         var dialogurl = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id;
-        this.catchedDownloads[download_id] = downloadUrl;
-        this.sendMessageToActiveTab({target: "dialog", dialog_url: dialogurl, action: "show", dialog_id: download_id });
+        this.catchedDownloads[download_id] = {
+            browserDownloadId: browserDownloadId,
+            downloadUrl: downloadUrl,
+            targetTab: targetTab,
+            filename: downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1),
+            dialogShown: false,
+        };
+
         setTimeout( () => {
-            // todo this is not clever, whats the better way to close the dialog?
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (tab) {
-                    chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", dialog_id: download_id });
-                })
-            });
+            if(this.catchedDownloads[download_id].dialogShown === false){ // timeout if onDetermineFilename fires late for whatever reason and setFilenameForCatchedDownload is not triggered
+                this.showDialog(download_id);
+            }
+        }, 500);
+
+        setTimeout( () => {
+            this.hideDialog(download_id);
             delete this.catchedDownloads[download_id];
         }, 60 * 1000); // hide or timeout after 60 sec.
+    }
+
+    setFilenameForCatchedDownload(browserDownloadId, filename){
+        for (const key of Object.keys(this.catchedDownloads)) {
+            if(this.catchedDownloads[key].browserDownloadId === browserDownloadId){
+                this.catchedDownloads[key].filename = filename;
+                this.showDialog(key);
+            }
+        }
     }
 
     wasConfirmedDirect(downloadUrl) {
@@ -101,15 +116,15 @@ class Downloader {
     confirmCatchedDownload(download_id, action) {
         console.log("confirmCatchedDownload")
         if ( action === "direct") {
-            this.wasConfirmedDirectUrls[this.catchedDownloads[download_id]] = true;
-            browser.downloads.download({ url: this.catchedDownloads[download_id] });
+            this.wasConfirmedDirectUrls[this.catchedDownloads[download_id].url] = true;
+            browser.downloads.download({ url: this.catchedDownloads[download_id].url });
             delete this.catchedDownloads[download_id];
         }
         if ( action === "filewall") {
-            this.addDownload(this.catchedDownloads[download_id] );
+            this.addDownload(this.catchedDownloads[download_id].url, this.catchedDownloads[download_id].filename );
             delete this.catchedDownloads[download_id];
         }
-        this.sendMessageToActiveTab({target: "dialog", action: "hide", dialog_id: download_id});
+        this.hideDialog(download_id);
     }
 
     addDownload(downloadUrl, filename) {
@@ -217,14 +232,20 @@ class Downloader {
         const { downloadItemSubscription, ...rest } = item
         return rest
     }
-    async sendMessageToActiveTab(message) {
-        try {
-            const [{id: activeTabId}] = await browser.tabs.query({ active: true, currentWindow: true });
-            const response = await browser.tabs.sendMessage(activeTabId, message);
-            return response;
-        } catch {
-            return false;
-        }
+
+    showDialog(download_id){
+        this.catchedDownloads[download_id].dialogShown = true;
+        let dialog_url = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id + "&filename=" + this.catchedDownloads[download_id].filename;
+        chrome.tabs.sendMessage(this.catchedDownloads[download_id].targetTab, { target: "dialog", dialog_url: dialog_url, action: "show", dialog_id: download_id });
+    };
+
+    hideDialog(dialog_id){
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (tab) {
+                chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", dialog_id: dialog_id });
+            })
+        });
     }
+
 }
 export let downloader = new Downloader();

@@ -23,7 +23,7 @@ function showDialog(message){
 						opacity : 1;
 						z-index : 2000000000;
 						width   : 400px;
-						height  : 180px;
+						height  : 210px;
 						top     : 0px;
 						right   : 0px;
 						padding : 0px;

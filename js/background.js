@@ -17,8 +17,7 @@ browser.runtime.onInstalled.addListener( _ => {
                 contexts: ['link'],
             });
         } else {
-            browser.contextMenus.remove('secure_download')
-                .catch(e => console.log('error removingsecure_download', e.message))
+            browser.contextMenus.remove('secure_download').catch(e => console.log('error removingsecure_download', e.message))
         }
     });
 })
@@ -64,18 +63,51 @@ browser.downloads.onCreated.addListener( downloadItem => {
         ];
         const { origin } = new URL(downloadItem.finalUrl);
         for (const baseUrl of baseurls) {
-            if ( origin === baseUrl ) {
-                return;
-            }
+            if ( origin === baseUrl ){ return; }
         }
         const { state, id } = downloadItem;
         browser.downloads.pause(id); // pause download for now to onDeterminingFilename does not produce an error msg
         intercepted_dl_ids[id] = true;
 
-        // ask user
-        downloader.addCatchedDownload(downloadItem.finalUrl);
+        let targetTab = current_tab;
+        if(tab_data[current_tab].pendingUrl !== undefined && tab_data[current_tab].parent !== undefined){
+            if(tab_data[current_tab].pendingUrl === downloadItem.url || tab_data[current_tab].pendingUrl === downloadItem.finalUrl ){ // in case download was opened in new tab
+                targetTab = tab_data[current_tab].parent;
+            }
+        }
+
+        downloader.addCatchedDownload(downloadItem.id, downloadItem.finalUrl, targetTab); // ask user
     }
 });
+
+
+// track tabs to we can determine where to display the "download intercepted" dialog
+
+let current_tab = undefined;
+let tab_data = {}; // { id : { parent: someiId, pendingUrl: maybePendingUrl } }
+
+chrome.tabs.onCreated.addListener(function (tab) {
+    tab_data[tab.id] = { parent: current_tab, pendingUrl: tab.pendingUrl}
+})
+chrome.tabs.onRemoved.addListener(function (tabId) {
+    if(tabId === current_tab){ current_tab = undefined;}
+    delete tab_data[tabId];
+})
+chrome.tabs.onUpdated.addListener(function (tabId) {
+    chrome.tabs.get(tabId, function (tab) {
+        if(tab_data[tab.id] === undefined){ tab_data[tab.id] = {};}
+        tab_data[tab.id] = { pendingUrl: tab.pendingUrl, parent: tab_data[tab.id].parent };
+    });
+})
+chrome.tabs.onActivated.addListener(function (data) {
+    current_tab = data.tabId;
+    chrome.tabs.get(data.tabId, function (tab) {
+        if(tab_data[tab.id] === undefined){ tab_data[tab.id] = {};}
+        tab_data[tab.id] = { pendingUrl: tab.pendingUrl, parent: tab_data[tab.id].parent };
+    });
+})
+
+
 
 
 // DETERMINE FILENAME
@@ -85,6 +117,7 @@ browser.downloads.onDeterminingFilename.addListener(function (downloadItem, sugg
 
     const { state, id } = downloadItem;
     if(intercepted_dl_ids[id] === true){
+        downloader.setFilenameForCatchedDownload(downloadItem.id, downloadItem.filename)
 
         delete intercepted_dl_ids[id];
 
@@ -98,7 +131,6 @@ browser.downloads.onDeterminingFilename.addListener(function (downloadItem, sugg
              browser.downloads.removeFile(id);
         }
         browser.downloads.erase({id});
-
     }
 });
 
