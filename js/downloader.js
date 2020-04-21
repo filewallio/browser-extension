@@ -78,7 +78,7 @@ class Downloader {
         var dialogurl = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id;
         this.catchedDownloads[download_id] = {
             browserDownloadId: browserDownloadId,
-            downloadUrl: downloadUrl,
+            url: downloadUrl,
             targetTab: targetTab,
             filename: downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1),
             dialogShown: false,
