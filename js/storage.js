@@ -12,13 +12,13 @@ class Storage {
             'username': '',
             'baseUrl': '',
             'enable-context-menu': true,
-            'catch-all-downloads': false,
+            'catch-all-downloads': true,
             //'auto_secure_downloads': false,
             //'auto_cancel_insecure': false,
             //'auto_secure_urls': [],
             //'auto_secure_exclude_urls': [],
             'pollInterval': 3 * 1000, // 3 seconds
-            'pollTimout': 220, // 3 seconds * 220 = 11 minute timeout
+            'pollTimout': 440, // 3 seconds * 440 = 22 minute timeout
             'pollRetryErrorCount': 5 // 60 seconds
         }
         this.initDataItems().then( _ => {
