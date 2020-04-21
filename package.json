@@ -11,12 +11,12 @@
     "watch:firefox": "npx webpack --env.browser=firefox --watch --progress",
     "webpack-chrome": "npx webpack --env.browser=chrome --env.production=true",
     "build-chrome": "npm run webpack-chrome && npx web-ext build --artifacts-dir=web-ext-artifacts/chrome",
-    "postbuild-chrome": "npm run archive-source-chrome",
-    "archive-source-chrome": "cross-var git archive -o web-ext-artifacts/chrome/$npm_package_name-$npm_package_version-source.zip HEAD",
+    "postbuild-chrome": "npm run archive-source-chrome && cd web-ext-artifacts/chrome && mv $npm_package_name-$npm_package_version.zip $npm_package_name-$npm_package_version-chrome.zip",
+    "archive-source-chrome": "cross-var git archive -o web-ext-artifacts/chrome/$npm_package_name-$npm_package_version-chrome-source.zip HEAD",
     "webpack-firefox": "npx webpack --env.browser=firefox  --env.production=true",
     "build-firefox": "npm run webpack-firefox && npx web-ext build --artifacts-dir=web-ext-artifacts/firefox",
-    "postbuild-firefox": "npm run archive-source-firefox",
-    "archive-source-firefox": "cross-var git archive -o web-ext-artifacts/firefox/$npm_package_name-$npm_package_version-source.zip HEAD"
+    "postbuild-firefox": "npm run archive-source-firefox && cd web-ext-artifacts/firefox && mv $npm_package_name-$npm_package_version.zip $npm_package_name-$npm_package_version-firefox.zip",
+    "archive-source-firefox": "cross-var git archive -o web-ext-artifacts/firefox/$npm_package_name-$npm_package_version-firefox-source.zip HEAD"
   },
   "repository": {
     "type": "git",
