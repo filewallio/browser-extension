@@ -6,6 +6,7 @@ import { logout } from './authentication'
 import { distinctUntilKeyChanged, filter, take } from 'rxjs/operators';
 
 const browser = require('webextension-polyfill');
+let isFirefox = browser.downloads.onDeterminingFilename === undefined; // firefox does not have onDeterminingFilename
 
 class Downloader {
     constructor() {
@@ -41,7 +42,7 @@ class Downloader {
                         this.actions$.next({})
                     }
                     else if (actions['delete-download-item']) {
-                        this.removeAciveDownload(actions['delete-download-item'])
+                        this.removeActiveDownload(actions['delete-download-item'])
                     }
                     browser.browserAction.setBadgeText({text: ''})
                 })
@@ -72,27 +73,39 @@ class Downloader {
         })
     }
 
-    addCatchedDownload(browserDownloadId, downloadUrl, targetTab) {
-        console.log('addCatchedDownload',browserDownloadId,  downloadUrl)
+    addCatchedDownload(browserDownloadId, downloadUrl, targetTab, targetFilename) {
+        let filename = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+        if(targetFilename !== undefined){
+             filename = targetFilename.substring(targetFilename.lastIndexOf('/') + 1);
+             filename = filename.substring(filename.lastIndexOf('\\') + 1);
+        }
+
+        console.log('addCatchedDownload',browserDownloadId,  downloadUrl, targetFilename)
         var download_id = uuid(); // our uuid,
-        var dialogurl = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id;
         this.catchedDownloads[download_id] = {
             browserDownloadId: browserDownloadId,
             url: downloadUrl,
             targetTab: targetTab,
-            filename: downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1),
+            filename: filename,
+            targetFilename: targetFilename,
             dialogShown: false,
         };
 
-        setTimeout( () => {
-            if(this.catchedDownloads[download_id].dialogShown === false){ // timeout if onDetermineFilename fires late for whatever reason and setFilenameForCatchedDownload is not triggered
-                this.showDialog(download_id);
-            }
-        }, 500);
+        if(isFirefox){
+            this.showDialog(download_id);
+        }else{
+            setTimeout( () => {
+                if(this.catchedDownloads[download_id].dialogShown === false){ // timeout if onDetermineFilename fires late for whatever reason and setFilenameForCatchedDownload is not triggered
+                    this.showDialog(download_id);
+                }
+            }, 500);
+        }
 
         setTimeout( () => {
-            this.hideDialog(download_id);
-            delete this.catchedDownloads[download_id];
+            if(this.catchedDownloads[download_id] !== undefined){
+                this.hideDialog(download_id);
+                delete this.catchedDownloads[download_id];
+            }
         }, 60 * 1000); // hide or timeout after 60 sec.
     }
 
@@ -117,14 +130,17 @@ class Downloader {
         console.log("confirmCatchedDownload")
         if ( action === "direct") {
             this.wasConfirmedDirectUrls[this.catchedDownloads[download_id].url] = true;
-            browser.downloads.download({ url: this.catchedDownloads[download_id].url });
-            delete this.catchedDownloads[download_id];
+            if(isFirefox){
+                browser.downloads.download({ url: this.catchedDownloads[download_id].url, filename: this.catchedDownloads[download_id].filename  });
+            }else{
+                browser.downloads.download({ url: this.catchedDownloads[download_id].url });
+            }
         }
         if ( action === "filewall") {
             this.addDownload(this.catchedDownloads[download_id].url, this.catchedDownloads[download_id].filename );
-            delete this.catchedDownloads[download_id];
         }
         this.hideDialog(download_id);
+        delete this.catchedDownloads[download_id];
     }
 
     addDownload(downloadUrl, filename) {
@@ -138,29 +154,31 @@ class Downloader {
             filename,
             id: this.lastId++
         }
-        chrome.tabs.query({active: true}, function (tabs) {
-            tabs.forEach(function (tab) {
-                chrome.tabs.sendMessage(tab.id, { target: "animation", action: "start"});
+        browser.tabs.query({active: true}).then(tabs => {
+            tabs.forEach( tab => {
+                browser.tabs.sendMessage(tab.id, { target: "animation", action: "start"});
             })
         });
 
         const downloadItemSubscription = filewall.process(downloadItem).subscribe( downloadItem => {
                 this.updateStatus(downloadItem)
-                const {status, filename, pollStatus} = downloadItem;
+                const {status, resultFilename, pollStatus} = downloadItem;
                 this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
                 
                 if (status === 'finished') {
                     console.log('downloaded', downloadItem)
-                    chrome.tabs.query({active: true}, function (tabs) {
-                        tabs.forEach(function (tab) {
-                            chrome.tabs.sendMessage(tab.id, { target: "animation", action: "success"});
+                    browser.tabs.query({active: true}).then( tabs => {
+                        tabs.forEach( tab => {
+                            browser.tabs.sendMessage(tab.id, { target: "animation", action: "success"});
                         })
                     });
 
-                    this.removeAciveDownload(downloadItem)
-                    browser.downloads.download({
-                        url: pollStatus.links.download,
-                    });
+                    this.removeActiveDownload(downloadItem);
+                    if(isFirefox){
+                        browser.downloads.download({ url: pollStatus.links.download, filename: resultFilename }); // firefox ignores the ContentDisposition Header for downloads started in this way, so we need to provide a filename
+                    }else{
+                        browser.downloads.download({ url: pollStatus.links.download});
+                    }
                 }
             }, response => {
                 console.log('downloadItemSubscription error', response)
@@ -175,7 +193,7 @@ class Downloader {
                 const errorMap = {
                     'auth_failed': async _ => {
                         // 304 Fobidden remove download-item
-                        this.removeAciveDownload(downloadItem)
+                        this.removeActiveDownload(downloadItem)
                         // show login menu in popup
                         this.actions$.next({'show-authentication': ''})
                         await logout()
@@ -204,10 +222,11 @@ class Downloader {
         ]
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
-    removeAciveDownload({id: downloadId}) {
+    removeActiveDownload({id: downloadId}) {
         const downloadItem = this.activeDownloads.find( x => x.id === downloadId )
-        if (downloadItem && downloadItem.downloadItemSubscription)
+        if (downloadItem && downloadItem.downloadItemSubscription){
             downloadItem.downloadItemSubscription.unsubscribe()
+        }
         this.activeDownloads = this.activeDownloads.filter( x => x.id !== downloadId )
         this.activeDownload$.next( this.activeDownloads.map(this.sanitizeItem) )
     }
@@ -236,15 +255,11 @@ class Downloader {
     showDialog(download_id){
         this.catchedDownloads[download_id].dialogShown = true;
         let dialog_url = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id + "&filename=" + this.catchedDownloads[download_id].filename;
-        chrome.tabs.sendMessage(this.catchedDownloads[download_id].targetTab, { target: "dialog", dialog_url: dialog_url, action: "show", dialog_id: download_id });
+        browser.tabs.sendMessage(this.catchedDownloads[download_id].targetTab, { target: "dialog", dialog_url: dialog_url, action: "show", dialog_id: download_id });
     };
 
     hideDialog(dialog_id){
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (tab) {
-                chrome.tabs.sendMessage(tab.id, {target: "dialog", action: "hide", dialog_id: dialog_id });
-            })
-        });
+        browser.tabs.sendMessage(this.catchedDownloads[dialog_id].targetTab, {target: "dialog", action: "hide", dialog_id: dialog_id });
     }
 
 }

@@ -4,6 +4,8 @@ import { downloader } from './downloader.js';
 import { distinctUntilKeyChanged } from 'rxjs/operators';
 const browser = require('webextension-polyfill');
 
+let isFirefox = browser.downloads.onDeterminingFilename === undefined; // firefox does not have onDeterminingFilename
+
 
 browser.runtime.onInstalled.addListener( _ => {
     storage.onChange().pipe(
@@ -50,7 +52,10 @@ browser.downloads.onCreated.addListener( downloadItem => {
     console.log('downloads.onCreated', downloadItem.filename, downloadItem);
     if ( storage.appData['catch-all-downloads']  === true) { // don't do async,  the code below must run right now because of browser.downloads.pause
 
-        if (downloader.wasConfirmedDirect(downloadItem.finalUrl)){
+        let url = downloadItem.finalUrl;
+        if(url === undefined){ url = downloadItem.url}
+
+        if (downloader.wasConfirmedDirect(url)){
             return;
         }
 
@@ -61,13 +66,22 @@ browser.downloads.onCreated.addListener( downloadItem => {
             "http://127.0.0.1",
             "chrome-extension://"
         ];
-        const { origin } = new URL(downloadItem.finalUrl);
+        const { origin } = new URL(url);
         for (const baseUrl of baseurls) {
             if ( origin === baseUrl ){ return; }
         }
-        const { state, id } = downloadItem;
-        browser.downloads.pause(id); // pause download for now to onDeterminingFilename does not produce an error msg
-        intercepted_dl_ids[id] = true;
+        const { state, id,  } = downloadItem;
+
+        let targetFilename = undefined;
+        if(isFirefox) { // firefox does not have onDeterminingFilename, and also fires this event AFTER showing the "save as" file dialog, so we can get the filename anyway
+            browser.downloads.cancel(id);
+            if (state === 'complete') { browser.downloads.removeFile(id); }
+            browser.downloads.erase({id});
+            targetFilename = downloadItem.filename
+        }else{
+            browser.downloads.pause(id); // if in chrome, pause download for now so onDeterminingFilename does not produce an error msg.
+            intercepted_dl_ids[id] = true;
+        }
 
         let targetTab = current_tab;
         if(tab_data[current_tab].pendingUrl !== undefined && tab_data[current_tab].parent !== undefined){
@@ -76,7 +90,7 @@ browser.downloads.onCreated.addListener( downloadItem => {
             }
         }
 
-        downloader.addCatchedDownload(downloadItem.id, downloadItem.finalUrl, targetTab); // ask user
+        downloader.addCatchedDownload(downloadItem.id, url, targetTab, targetFilename); // ask user
     }
 });
 
@@ -86,54 +100,56 @@ browser.downloads.onCreated.addListener( downloadItem => {
 let current_tab = undefined;
 let tab_data = {}; // { id : { parent: someiId, pendingUrl: maybePendingUrl } }
 
-chrome.tabs.onCreated.addListener(function (tab) {
+browser.tabs.onCreated.addListener(tab => {
     tab_data[tab.id] = { parent: current_tab, pendingUrl: tab.pendingUrl}
 })
-chrome.tabs.onRemoved.addListener(function (tabId) {
+browser.tabs.onRemoved.addListener(tabId => {
     if(tabId === current_tab){ current_tab = undefined;}
     delete tab_data[tabId];
+    for (const key of Object.keys(downloader.catchedDownloads)) {
+        if(downloader.catchedDownloads[key].targetTab === tabId){
+            delete downloader.catchedDownloads[key];
+        }
+    }
 })
-chrome.tabs.onUpdated.addListener(function (tabId) {
-    chrome.tabs.get(tabId, function (tab) {
+browser.tabs.onUpdated.addListener(tabId => {
+    browser.tabs.get(tabId).then(  tab => {
         if(tab_data[tab.id] === undefined){ tab_data[tab.id] = {};}
         tab_data[tab.id] = { pendingUrl: tab.pendingUrl, parent: tab_data[tab.id].parent };
     });
+
 })
-chrome.tabs.onActivated.addListener(function (data) {
+browser.tabs.onActivated.addListener(data => {
     current_tab = data.tabId;
-    chrome.tabs.get(data.tabId, function (tab) {
+    browser.tabs.get(data.tabId).then( tab => {
         if(tab_data[tab.id] === undefined){ tab_data[tab.id] = {};}
         tab_data[tab.id] = { pendingUrl: tab.pendingUrl, parent: tab_data[tab.id].parent };
     });
 })
-
-
 
 
 // DETERMINE FILENAME
+if(!isFirefox){ // firefox does not have onDeterminingFilename
+    browser.downloads.onDeterminingFilename.addListener(function (downloadItem, suggest) {
+        console.log('onDeterminingFilename', downloadItem.filename, downloadItem);
 
-browser.downloads.onDeterminingFilename.addListener(function (downloadItem, suggest) {
-    console.log('onDeterminingFilename', downloadItem.filename, downloadItem);
+        const { state, id } = downloadItem;
+        if(intercepted_dl_ids[id] === true){
+            downloader.setFilenameForCatchedDownload(downloadItem.id, downloadItem.filename)
 
-    const { state, id } = downloadItem;
-    if(intercepted_dl_ids[id] === true){
-        downloader.setFilenameForCatchedDownload(downloadItem.id, downloadItem.filename)
+            delete intercepted_dl_ids[id];
 
-        delete intercepted_dl_ids[id];
+            console.log('trying to erase download', downloadItem);
 
-        console.log('trying to erase download', downloadItem);
+            // suggest dummy filename so "save as" file dialog is not triggered after this event and does not produce some internal error because the download will have been deleted
+            suggest({filename: "dummy"});
 
-        // suggest dummy filename so "save as" file dialog is not triggered after this event and does not produce some internal error because the download will have been deleted
-        suggest({filename: "dummy"});
-
-        // Erase existing download
-        if (state === 'complete') {
-             browser.downloads.removeFile(id);
+            // Erase existing download
+            if (state === 'complete') { browser.downloads.removeFile(id); }
+            browser.downloads.erase({id});
         }
-        browser.downloads.erase({id});
-    }
-});
-
+    });
+}
 // CATCH COMPLETED DOWNLOAD
 // browser.downloads.onChanged.addListener(function (downloadDelta) { });
 

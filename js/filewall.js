@@ -58,10 +58,10 @@ class Filewall {
                                 tap( pollStatus => downloadItem = {...downloadItem, pollStatus} )
                             ).subscribe( pollStatus => {
                                 console.log('pollStatus', pollStatus)
-                                const {status, error} = pollStatus
+                                const {status, error, name} = pollStatus
                                 if (status === 'finished') {
                                     intervalSubscription.unsubscribe()
-                                    subject.next({...downloadItem, status: 'finished'})
+                                    subject.next({...downloadItem, status: 'finished', resultFilename: name})
                                     subject.complete()
                                 } else if (status === 'failed') {
                                     intervalSubscription.unsubscribe()

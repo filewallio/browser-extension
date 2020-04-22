@@ -14,17 +14,17 @@ window.addEventListener('load', function () {
 
     $('#fwiodli_direct').addEventListener('click', e => {
         e.preventDefault();
-        chrome.runtime.sendMessage({download_id: download_id, action: "direct"});
+        browser.runtime.sendMessage({download_id: download_id, action: "direct"});
     });
 
     $('#fwiodli_tofw_btn').addEventListener('click', e => {
         e.preventDefault();
-        chrome.runtime.sendMessage({download_id: download_id, action: "filewall"});
+        browser.runtime.sendMessage({download_id: download_id, action: "filewall"});
     });
 
     $('#fwiodli_header_close').addEventListener('click', e => {
         e.preventDefault();
-        chrome.runtime.sendMessage({download_id: download_id, action: "close"});
+        browser.runtime.sendMessage({download_id: download_id, action: "close"});
     });
 
 });
