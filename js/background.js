@@ -83,9 +83,11 @@ browser.downloads.onCreated.addListener( downloadItem => {
             intercepted_dl_ids[id] = true;
         }
 
+        // If a download opens in a new tab, we catch the pendingUrl in browser.tabs.onActivated. If the tabs pending url is the same as the download url,
+        // the tab will be closed by the browser, so we have to inject the dialog window into the parent tab.
         let targetTab = current_tab;
         if(tab_data[current_tab].pendingUrl !== undefined && tab_data[current_tab].parent !== undefined){
-            if(tab_data[current_tab].pendingUrl === downloadItem.url || tab_data[current_tab].pendingUrl === downloadItem.finalUrl ){ // in case download was opened in new tab
+            if(tab_data[current_tab].pendingUrl === downloadItem.url || tab_data[current_tab].pendingUrl === downloadItem.finalUrl ){
                 targetTab = tab_data[current_tab].parent;
             }
         }
