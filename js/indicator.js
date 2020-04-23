@@ -21,7 +21,7 @@ function showDialog(message){
 					.fwiodli_iframe {
 						position: fixed;
 						opacity : 1;
-						z-index : 2000000000;
+						z-index : 2147483647;
 						width   : 400px;
 						height  : 205px;
 						top     : 0px;
@@ -35,7 +35,7 @@ function showDialog(message){
 					}					
 				</style>
 				<iframe class="fwiodli_iframe" src="`+message.dialog_url+`"></iframe>
-			`; // TODO does the iframe need more protection?
+			`;
 		var maindiv = document.createElement('div');
 		maindiv.id = "filewallio_dialog_" + message.dialog_id;
 		maindiv.innerHTML = content;

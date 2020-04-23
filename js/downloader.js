@@ -254,7 +254,7 @@ class Downloader {
 
     showDialog(download_id){
         this.catchedDownloads[download_id].dialogShown = true;
-        let dialog_url = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id + "&filename=" + this.catchedDownloads[download_id].filename;
+        let dialog_url = browser.runtime.getURL("dialog/dialog.html") + "?download_id=" + download_id + "&filename=" + encodeURIComponent(this.catchedDownloads[download_id].filename);
         browser.tabs.sendMessage(this.catchedDownloads[download_id].targetTab, { target: "dialog", dialog_url: dialog_url, action: "show", dialog_id: download_id });
     };
 
