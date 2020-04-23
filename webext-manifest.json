@@ -18,7 +18,6 @@
         "https://*/*"       ,
         "http://*/*"
     ],
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://www.googletagmanager.com; object-src 'self'",
     "background"  : {
         "scripts": ["./background/background.js"]
     },
